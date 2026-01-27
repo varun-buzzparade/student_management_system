@@ -15,49 +15,49 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="mb-3">
-        <label class="form-label">Student ID</label>
-        <input class="form-control" value="@Model.StudentId" readonly />
+        <label for="studentId" class="form-label">Student ID</label>
+        <input id="studentId" class="form-control" value="@Model.StudentId" readonly />
     </div>
 
     <div class="mb-3">
-        <label asp-for="FullName" class="form-label"></label>
-        <input asp-for="FullName" class="form-control" />
+        <label for="FullName" class="form-label">Full Name</label>
+        <input asp-for="FullName" id="FullName" class="form-control" />
         <span asp-validation-for="FullName" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="DateOfBirth" class="form-label"></label>
-        <input asp-for="DateOfBirth" type="date" class="form-control" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        <label for="DateOfBirth" class="form-label">Date of Birth</label>
+        <input asp-for="DateOfBirth" id="DateOfBirth" type="date" class="form-control" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
         <span asp-validation-for="DateOfBirth" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Age" class="form-label"></label>
-        <input asp-for="Age" class="form-control" readonly />
+        <label for="Age" class="form-label">Age</label>
+        <input asp-for="Age" id="Age" class="form-control" readonly />
         <small class="form-text text-muted">Calculated from Date of Birth</small>
     </div>
 
     <div class="mb-3">
-        <label asp-for="HeightCm" class="form-label"></label>
-        <input asp-for="HeightCm" class="form-control" />
+        <label for="HeightCm" class="form-label">Height (cm)</label>
+        <input asp-for="HeightCm" id="HeightCm" class="form-control" />
         <span asp-validation-for="HeightCm" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Gender" class="form-label"></label>
-        <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<StudentManagementSystem.Models.Gender>()"></select>
+        <label for="Gender" class="form-label">Gender</label>
+        <select asp-for="Gender" id="Gender" class="form-select" asp-items="Html.GetEnumSelectList<StudentManagementSystem.Models.Gender>()"></select>
         <span asp-validation-for="Gender" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="MobileNumber" class="form-label"></label>
-        <input asp-for="MobileNumber" class="form-control" />
+        <label for="MobileNumber" class="form-label">Mobile Number</label>
+        <input asp-for="MobileNumber" id="MobileNumber" class="form-control" />
         <span asp-validation-for="MobileNumber" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
+        <label for="Email" class="form-label">Email</label>
+        <input asp-for="Email" id="Email" class="form-control" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
