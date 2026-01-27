@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Stack Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+            page-break-before: always;
+        }
+        h1:first-of-type {
+            page-break-before: avoid;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+            margin-top: 25px;
+        }
+        h3 {
+            color: #7f8c8d;
+            margin-top: 20px;
+        }
+        h4 {
+            color: #95a5a6;
+            margin-top: 15px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            overflow-x: auto;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .tech-box {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .architecture-diagram {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 30px 0;
+        }
+        strong {
+            color: #2c3e50;
+        }
+        .version-badge {
+            background-color: #3498db;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Technical Stack Documentation</h1>
+    
+    <h2>Table of Contents</h2>
+    <ol>
+        <li>Technology Overview</li>
+        <li>Architecture</li>
+        <li>Backend Technologies</li>
+        <li>Frontend Technologies</li>
+        <li>Database</li>
+        <li>Dependencies</li>
+        <li>Project Structure</li>
+        <li>Design Patterns</li>
+        <li>Security Implementation</li>
+        <li>Development & Deployment</li>
+    </ol>
+
+    <hr>
+
+    <h2>Technology Overview</h2>
+    
+    <h3>Core Framework</h3>
+    <div class="tech-box">
+        <p><strong>Platform:</strong> .NET <span class="version-badge">10.0</span></p>
+        <p><strong>Framework:</strong> ASP.NET Core MVC</p>
+        <p><strong>Language:</strong> C# 13</p>
+        <p><strong>Pattern:</strong> Model-View-Controller (MVC)</p>
+    </div>
+    
+    <h3>Database</h3>
+    <div class="tech-box">
+        <p><strong>Database Engine:</strong> PostgreSQL <span class="version-badge">15+</span></p>
+        <p><strong>ORM:</strong> Entity Framework Core <span class="version-badge">10.0</span></p>
+        <p><strong>Provider:</strong> Npgsql.EntityFrameworkCore.PostgreSQL <span class="version-badge">10.0</span></p>
+    </div>
+    
+    <h3>Identity & Authentication</h3>
+    <div class="tech-box">
+        <p><strong>Framework:</strong> ASP.NET Core Identity</p>
+        <p><strong>Package:</strong> Microsoft.AspNetCore.Identity.EntityFrameworkCore <span class="version-badge">10.0</span></p>
+    </div>
+
+    <hr>
+
+    <h2>Architecture</h2>
+    
+    <h3>Application Architecture</h3>
+    
+    <div class="architecture-diagram">
+┌─────────────────────────────────────────────────────────────┐
+│                    Presentation Layer                        │
+│                  (Views - Razor Pages)                       │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────┴────────────────────────────────┐
+│                     Controller Layer                         │
+│ (AccountController, AdminController, StudentController)      │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────┴────────────────────────────────┐
+│                      Service Layer                           │
+│  (EmailSender, StudentIdGenerator, PasswordGenerator)        │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────┴────────────────────────────────┐
+│                    Data Access Layer                         │
+│      (ApplicationDbContext, Entity Framework Core)           │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────┴────────────────────────────────┐
+│                      Database Layer                          │
+│                  (PostgreSQL Database)                       │
+└─────────────────────────────────────────────────────────────┘
+    </div>
+    
+    <h3>MVC Pattern Implementation</h3>
+    
+    <p><strong>Models:</strong></p>
+    <ul>
+        <li><code>ApplicationUser.cs</code> - Extended Identity user model</li>
+        <li><code>Gender.cs</code> - Enum for gender values</li>
+        <li><code>Roles.cs</code> - Static role constants</li>
+        <li><code>ErrorViewModel.cs</code> - Error handling model</li>
+    </ul>
+    
+    <p><strong>Views:</strong></p>
+    <ul>
+        <li>Razor Pages (.cshtml)</li>
+        <li>Layout templates</li>
+        <li>Partial views</li>
+        <li>Shared components</li>
+    </ul>
+    
+    <p><strong>Controllers:</strong></p>
+    <ul>
+        <li><code>AccountController</code> - Authentication & registration</li>
+        <li><code>AdminController</code> - Admin operations</li>
+        <li><code>StudentController</code> - Student self-service</li>
+        <li><code>HomeController</code> - Public pages</li>
+    </ul>
+
+    <hr>
+
+    <h2>Backend Technologies</h2>
+    
+    <h3>1. ASP.NET Core MVC</h3>
+    
+    <p><strong>Version:</strong> <span class="version-badge">10.0</span></p>
+    
+    <p><strong>Key Features Used:</strong></p>
+    <ul>
+        <li>Model-View-Controller pattern</li>
+        <li>Routing and URL generation</li>
+        <li>Dependency Injection</li>
+        <li>Middleware pipeline</li>
+        <li>Model binding and validation</li>
+        <li>Anti-forgery tokens</li>
+    </ul>
+    
+    <p><strong>Configuration:</strong></p>
+    <pre><code>// Program.cs
+builder.Services.AddControllersWithViews();</code></pre>
+    
+    <h3>2. ASP.NET Core Identity</h3>
+    
+    <p><strong>Version:</strong> <span class="version-badge">10.0</span></p>
+    <p><strong>Purpose:</strong> User authentication and authorization</p>
+    
+    <p><strong>Configuration:</strong></p>
+    <pre><code>builder.Services.AddIdentity&lt;ApplicationUser, IdentityRole&gt;(options =>
+{
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireDigit = true;
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores&lt;ApplicationDbContext&gt;()
+.AddDefaultTokenProviders();</code></pre>
+    
+    <p><strong>Features Implemented:</strong></p>
+    <ul>
+        <li>User registration</li>
+        <li>Login/logout</li>
+        <li>Password hashing (PBKDF2)</li>
+        <li>Role-based authorization</li>
+        <li>Cookie authentication</li>
+        <li>User management</li>
+    </ul>
+    
+    <h3>3. Entity Framework Core</h3>
+    
+    <p><strong>Version:</strong> <span class="version-badge">10.0</span></p>
+    <p><strong>Provider:</strong> Npgsql.EntityFrameworkCore.PostgreSQL <span class="version-badge">10.0</span></p>
+    <p><strong>Purpose:</strong> Object-Relational Mapping (ORM)</p>
+    
+    <p><strong>Features Used:</strong></p>
+    <ul>
+        <li>Code-First migrations</li>
+        <li>LINQ queries</li>
+        <li>Change tracking</li>
+        <li>Relationship management</li>
+        <li>Database seeding</li>
+    </ul>
+    
+    <p><strong>Database Context:</strong></p>
+    <pre><code>public class ApplicationDbContext : IdentityDbContext&lt;ApplicationUser&gt;
+{
+    public ApplicationDbContext(DbContextOptions&lt;ApplicationDbContext&gt; options)
+        : base(options)
+    {
+    }
+}</code></pre>
+    
+    <h3>4. Custom Services</h3>
+    
+    <h4>EmailSenderService</h4>
+    <pre><code>public interface IEmailSenderService
+{
+    Task SendEmailAsync(string toEmail, string subject, string htmlBody);
+}</code></pre>
+    <ul>
+        <li>SMTP email delivery</li>
+        <li>HTML email support</li>
+        <li>Error handling</li>
+        <li>Configurable settings</li>
+    </ul>
+    
+    <h4>StudentIdGenerator</h4>
+    <ul>
+        <li>Generates unique student IDs</li>
+        <li>Format: STU + 5-digit number</li>
+        <li>Collision detection</li>
+        <li>Async database checking</li>
+    </ul>
+    
+    <h4>PasswordGenerator</h4>
+    <ul>
+        <li>Secure random password generation</li>
+        <li>Meets complexity requirements</li>
+        <li>Uses cryptographic random number generator</li>
+    </ul>
+
+    <hr>
+
+    <h2>Frontend Technologies</h2>
+    
+    <h3>1. Razor View Engine</h3>
+    
+    <p><strong>Purpose:</strong> Server-side HTML generation</p>
+    
+    <p><strong>Features:</strong></p>
+    <ul>
+        <li>C# code in views</li>
+        <li>Layout pages</li>
+        <li>Partial views</li>
+        <li>Tag helpers</li>
+        <li>ViewModels binding</li>
+    </ul>
+    
+    <p><strong>Example:</strong></p>
+    <pre><code>@model StudentRegistrationViewModel
+
+@if (User.IsInRole("Admin"))
+{
+    &lt;a asp-controller="Admin" asp-action="Index"&gt;Dashboard&lt;/a&gt;
+}</code></pre>
+    
+    <h3>2. Bootstrap 5</h3>
+    
+    <p><strong>Version:</strong> <span class="version-badge">5.x</span></p>
+    <p><strong>Purpose:</strong> CSS framework for responsive design</p>
+    
+    <p><strong>Components Used:</strong></p>
+    <ul>
+        <li>Grid system</li>
+        <li>Forms and input groups</li>
+        <li>Tables</li>
+        <li>Navigation bars</li>
+        <li>Buttons and alerts</li>
+        <li>Cards</li>
+    </ul>
+    
+    <h3>3. jQuery</h3>
+    
+    <p><strong>Version:</strong> Latest</p>
+    <p><strong>Purpose:</strong> Client-side JavaScript library</p>
+    
+    <p><strong>Usage:</strong></p>
+    <ul>
+        <li>Form validation</li>
+        <li>AJAX requests (potential)</li>
+        <li>DOM manipulation</li>
+        <li>Bootstrap dependencies</li>
+    </ul>
+    
+    <h3>4. Client-Side Validation</h3>
+    
+    <p><strong>Technology:</strong> jQuery Validation + Unobtrusive Validation</p>
+    
+    <p><strong>Features:</strong></p>
+    <ul>
+        <li>Real-time form validation</li>
+        <li>Custom validation rules</li>
+        <li>Server-side validation fallback</li>
+    </ul>
+
+    <hr>
+
+    <h2>Database</h2>
+    
+    <h3>Database Management System</h3>
+    
+    <p><strong>DBMS:</strong> PostgreSQL <span class="version-badge">15+</span></p>
+    
+    <p><strong>Connection String Format:</strong></p>
+    <pre><code>Host=localhost;Port=5432;Database=student_management_system;Username=postgres;Password=your_password</code></pre>
+    
+    <h3>Database Schema</h3>
+    
+    <h4>AspNetUsers Table (Extended)</h4>
+    <pre><code>CREATE TABLE "AspNetUsers" (
+    "Id" text PRIMARY KEY,
+    "UserName" text,
+    "NormalizedUserName" text,
+    "Email" text,
+    "NormalizedEmail" text,
+    "EmailConfirmed" boolean,
+    "PasswordHash" text,
+    "SecurityStamp" text,
+    "ConcurrencyStamp" text,
+    "PhoneNumber" text,
+    "PhoneNumberConfirmed" boolean,
+    "TwoFactorEnabled" boolean,
+    "LockoutEnd" timestamp,
+    "LockoutEnabled" boolean,
+    "AccessFailedCount" integer,
+    -- Custom fields
+    "FullName" text NOT NULL,
+    "Age" integer NOT NULL,
+    "HeightCm" decimal(5,2) NOT NULL,
+    "Gender" text NOT NULL,
+    "MobileNumber" text,
+    "StudentId" text,
+    "CreatedAt" timestamp NOT NULL
+);</code></pre>
+    
+    <h4>AspNetRoles Table</h4>
+    <pre><code>CREATE TABLE "AspNetRoles" (
+    "Id" text PRIMARY KEY,
+    "Name" text,
+    "NormalizedName" text,
+    "ConcurrencyStamp" text
+);</code></pre>
+    
+    <h4>AspNetUserRoles Table (Junction)</h4>
+    <pre><code>CREATE TABLE "AspNetUserRoles" (
+    "UserId" text,
+    "RoleId" text,
+    PRIMARY KEY ("UserId", "RoleId"),
+    FOREIGN KEY ("UserId") REFERENCES "AspNetUsers" ("Id"),
+    FOREIGN KEY ("RoleId") REFERENCES "AspNetRoles" ("Id")
+);</code></pre>
+    
+    <h3>Migrations</h3>
+    
+    <p><strong>Tool:</strong> Entity Framework Core Migrations</p>
+    
+    <p><strong>Commands:</strong></p>
+    <pre><code># Create new migration
+dotnet ef migrations add MigrationName
+
+# Update database
+dotnet ef database update
+
+# Remove last migration (if not applied)
+dotnet ef migrations remove</code></pre>
+    
+    <p><strong>Current Migrations:</strong></p>
+    <ul>
+        <li><code>InitialCreate</code> - Creates all Identity tables and custom fields</li>
+    </ul>
+
+    <hr>
+
+    <h2>Dependencies</h2>
+    
+    <h3>NuGet Packages</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Package</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Microsoft.AspNetCore.Identity.EntityFrameworkCore</td>
+                <td>10.0.2</td>
+                <td>Identity system with EF Core</td>
+            </tr>
+            <tr>
+                <td>Microsoft.EntityFrameworkCore.Design</td>
+                <td>10.0.2</td>
+                <td>Design-time EF Core tools</td>
+            </tr>
+            <tr>
+                <td>Npgsql.EntityFrameworkCore.PostgreSQL</td>
+                <td>10.0.0</td>
+                <td>PostgreSQL provider for EF Core</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Project Structure</h2>
+    
+    <pre><code>student_management_system/
+│
+├── Controllers/                          # MVC Controllers
+│   ├── AccountController.cs             # Auth & registration
+│   ├── AdminController.cs               # Admin operations
+│   ├── HomeController.cs                # Public pages
+│   └── StudentController.cs             # Student self-service
+│
+├── Data/                                 # Database & seeding
+│   ├── ApplicationDbContext.cs          # EF Core context
+│   └── IdentitySeeder.cs                # Initial data seeding
+│
+├── Migrations/                           # EF Core migrations
+│   ├── 20260126115729_InitialCreate.cs
+│   ├── 20260126115729_InitialCreate.Designer.cs
+│   └── ApplicationDbContextModelSnapshot.cs
+│
+├── Models/                               # Domain models
+│   ├── ApplicationUser.cs               # Extended user model
+│   ├── ErrorViewModel.cs                # Error handling
+│   ├── Gender.cs                        # Gender enum
+│   └── Roles.cs                         # Role constants
+│
+├── Properties/
+│   └── launchSettings.json              # Development settings
+│
+├── Services/                             # Business logic
+│   ├── IEmailSenderService.cs           # Email interface
+│   ├── PasswordGenerator.cs             # Password generation
+│   ├── SmtpEmailSender.cs               # SMTP implementation
+│   ├── SmtpSettings.cs                  # SMTP configuration
+│   └── StudentIdGenerator.cs            # Student ID generation
+│
+├── ViewModels/                           # Data transfer objects
+│   ├── AdminStudentEditViewModel.cs
+│   ├── AdminStudentListItemViewModel.cs
+│   ├── AdminStudentListViewModel.cs
+│   ├── PagedResult.cs
+│   ├── StudentListQueryViewModel.cs
+│   ├── StudentProfileViewModel.cs
+│   └── StudentRegistrationViewModel.cs
+│
+├── Views/                                # Razor views
+│   ├── Account/
+│   │   ├── AccessDenied.cshtml
+│   │   ├── Login.cshtml
+│   │   └── Register.cshtml
+│   ├── Admin/
+│   │   ├── Details.cshtml
+│   │   ├── Edit.cshtml
+│   │   └── Index.cshtml
+│   ├── Home/
+│   │   ├── Index.cshtml
+│   │   └── Privacy.cshtml
+│   ├── Shared/
+│   │   ├── _Layout.cshtml
+│   │   ├── _ValidationScriptsPartial.cshtml
+│   │   └── Error.cshtml
+│   ├── Student/
+│   │   └── Profile.cshtml
+│   ├── _ViewImports.cshtml
+│   └── _ViewStart.cshtml
+│
+├── wwwroot/                              # Static files
+│   ├── css/
+│   ├── js/
+│   └── lib/
+│
+├── appsettings.json                      # Configuration
+├── appsettings.Development.json          # Dev configuration
+├── Program.cs                            # Application entry point
+└── student_management_system.csproj      # Project file</code></pre>
+
+    <hr>
+
+    <h2>Design Patterns</h2>
+    
+    <h3>1. Model-View-Controller (MVC)</h3>
+    <ul>
+        <li>Separation of concerns</li>
+        <li>Testable components</li>
+        <li>Clear responsibility boundaries</li>
+    </ul>
+    
+    <h3>2. Repository Pattern</h3>
+    <ul>
+        <li>Abstracted via Entity Framework Core</li>
+        <li>DbContext acts as repository</li>
+        <li>Unit of Work pattern included</li>
+    </ul>
+    
+    <h3>3. Dependency Injection</h3>
+    <pre><code>// Service registration
+builder.Services.AddScoped&lt;IEmailSenderService, SmtpEmailSender&gt;();
+
+// Constructor injection
+public class AccountController : Controller
+{
+    private readonly IEmailSenderService _emailSender;
+    
+    public AccountController(IEmailSenderService emailSender)
+    {
+        _emailSender = emailSender;
+    }
+}</code></pre>
+    
+    <h3>4. ViewModel Pattern</h3>
+    <ul>
+        <li>Separate DTOs for views</li>
+        <li>Prevents over-posting</li>
+        <li>Cleaner validation</li>
+    </ul>
+    
+    <h3>5. Service Layer Pattern</h3>
+    <ul>
+        <li>Business logic separation</li>
+        <li>Reusable services</li>
+        <li>Easier testing</li>
+    </ul>
+
+    <hr>
+
+    <h2>Security Implementation</h2>
+    
+    <h3>1. Authentication</h3>
+    <ul>
+        <li>Cookie-based authentication</li>
+        <li>Secure session management</li>
+        <li>Automatic logout on browser close</li>
+    </ul>
+    
+    <h3>2. Authorization</h3>
+    <pre><code>[Authorize(Roles = Roles.Admin)]
+public class AdminController : Controller
+{
+    // Only admins can access
+}</code></pre>
+    
+    <h3>3. Password Security</h3>
+    <ul>
+        <li>PBKDF2 hashing (via Identity)</li>
+        <li>Salt included automatically</li>
+        <li>Configurable iteration count</li>
+    </ul>
+    
+    <h3>4. CSRF Protection</h3>
+    <pre><code>[ValidateAntiForgeryToken]
+public async Task&lt;IActionResult&gt; Register(...)</code></pre>
+    
+    <h3>5. SQL Injection Prevention</h3>
+    <ul>
+        <li>Parameterized queries via EF Core</li>
+        <li>LINQ query translation</li>
+        <li>No raw SQL commands</li>
+    </ul>
+    
+    <h3>6. XSS Prevention</h3>
+    <ul>
+        <li>Razor automatic HTML encoding</li>
+        <li>Tag helpers</li>
+        <li>Content Security Policy headers</li>
+    </ul>
+
+    <hr>
+
+    <h2>Development & Deployment</h2>
+    
+    <h3>Development Environment</h3>
+    
+    <p><strong>Requirements:</strong></p>
+    <ul>
+        <li>Visual Studio 2024 / VS Code / Rider</li>
+        <li>.NET 10.0 SDK</li>
+        <li>PostgreSQL 15+</li>
+        <li>Git</li>
+    </ul>
+    
+    <p><strong>Setup:</strong></p>
+    <pre><code># Restore packages
+dotnet restore
+
+# Build project
+dotnet build
+
+# Run application
+dotnet run
+
+# Watch mode (auto-reload)
+dotnet watch run</code></pre>
+    
+    <h3>Database Migrations</h3>
+    
+    <pre><code># Add new migration
+dotnet ef migrations add MigrationName
+
+# Update database
+dotnet ef database update
+
+# Generate SQL script
+dotnet ef migrations script
+
+# Remove last migration
+dotnet ef migrations remove</code></pre>
+    
+    <h3>Environment Configuration</h3>
+    
+    <p><strong>Development:</strong> <code>appsettings.Development.json</code></p>
+    <pre><code>{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information"
+    }
+  }
+}</code></pre>
+    
+    <p><strong>Production:</strong> <code>appsettings.json</code></p>
+    <ul>
+        <li>Connection strings</li>
+        <li>SMTP settings</li>
+        <li>Admin credentials</li>
+    </ul>
+    
+    <h3>Deployment Options</h3>
+    
+    <ol>
+        <li><strong>IIS:</strong>
+            <ul>
+                <li>Publish as self-contained or framework-dependent</li>
+                <li>Configure application pool</li>
+                <li>Set environment variables</li>
+            </ul>
+        </li>
+        
+        <li><strong>Docker:</strong>
+            <pre><code>FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY published/ .
+ENTRYPOINT ["dotnet", "student_management_system.dll"]</code></pre>
+        </li>
+        
+        <li><strong>Linux with Kestrel:</strong>
+            <ul>
+                <li>Systemd service</li>
+                <li>Nginx reverse proxy</li>
+                <li>Let's Encrypt SSL</li>
+            </ul>
+        </li>
+        
+        <li><strong>Cloud Platforms:</strong>
+            <ul>
+                <li>Azure App Service</li>
+                <li>AWS Elastic Beanstalk</li>
+                <li>Google Cloud Run</li>
+            </ul>
+        </li>
+    </ol>
+
+    <hr>
+
+    <h2>Performance Considerations</h2>
+    
+    <h3>1. Database Optimization</h3>
+    <ul>
+        <li>Indexes on frequently queried fields</li>
+        <li>AsNoTracking() for read-only queries</li>
+        <li>Pagination for large datasets</li>
+        <li>Lazy loading disabled</li>
+    </ul>
+    
+    <h3>2. Caching</h3>
+    <ul>
+        <li>Static file caching</li>
+        <li>Response caching potential</li>
+        <li>Distributed cache ready</li>
+    </ul>
+    
+    <h3>3. Query Optimization</h3>
+    <pre><code>// Efficient query with projection
+var students = await _dbContext.Users
+    .AsNoTracking()
+    .Where(u => u.Role == "Student")
+    .Select(u => new StudentViewModel { ... })
+    .ToListAsync();</code></pre>
+
+    <hr>
+
+    <h2>Testing Considerations</h2>
+    
+    <h3>Testable Architecture</h3>
+    <ul>
+        <li>Dependency injection enables mocking</li>
+        <li>Interface-based services</li>
+        <li>Separation of concerns</li>
+    </ul>
+    
+    <h3>Potential Test Types</h3>
+    <ul>
+        <li>Unit tests for services</li>
+        <li>Integration tests for controllers</li>
+        <li>UI tests with Selenium</li>
+        <li>Database tests with in-memory provider</li>
+    </ul>
+
+    <hr>
+
+    <h2>Version Information</h2>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Technology</th>
+                <th>Version</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>.NET</td>
+                <td>10.0</td>
+            </tr>
+            <tr>
+                <td>C#</td>
+                <td>13</td>
+            </tr>
+            <tr>
+                <td>Entity Framework Core</td>
+                <td>10.0.2</td>
+            </tr>
+            <tr>
+                <td>PostgreSQL</td>
+                <td>15+</td>
+            </tr>
+            <tr>
+                <td>Bootstrap</td>
+                <td>5.x</td>
+            </tr>
+            <tr>
+                <td>jQuery</td>
+                <td>3.x</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Future Technical Enhancements</h2>
+    
+    <p><strong>Potential Improvements:</strong></p>
+    <ul>
+        <li>API endpoints (RESTful API)</li>
+        <li>SignalR for real-time features</li>
+        <li>Background job processing (Hangfire)</li>
+        <li>Advanced caching (Redis)</li>
+        <li>Logging framework (Serilog)</li>
+        <li>Health checks endpoint</li>
+        <li>Swagger/OpenAPI documentation</li>
+        <li>Docker containerization</li>
+        <li>CI/CD pipeline</li>
+        <li>Automated testing suite</li>
+    </ul>
+
+    <hr>
+
+    <h2>Troubleshooting</h2>
+    
+    <h3>Common Issues</h3>
+    
+    <p><strong>Port already in use:</strong></p>
+    <pre><code># Windows
+netstat -ano | findstr :5146
+taskkill /PID &lt;pid&gt; /F
+
+# Linux
+lsof -i :5146
+kill -9 &lt;pid&gt;</code></pre>
+    
+    <p><strong>Database connection failed:</strong></p>
+    <ul>
+        <li>Check PostgreSQL is running</li>
+        <li>Verify connection string</li>
+        <li>Check firewall settings</li>
+        <li>Verify credentials</li>
+    </ul>
+    
+    <p><strong>Migration errors:</strong></p>
+    <pre><code># Reset database
+dotnet ef database drop
+dotnet ef database update</code></pre>
+
+    <hr>
+
+    <h2>Contact & Support</h2>
+    
+    <p>For technical issues or questions about the implementation, refer to:</p>
+    <ul>
+        <li>ASP.NET Core documentation: <a href="https://docs.microsoft.com/aspnet/core">https://docs.microsoft.com/aspnet/core</a></li>
+        <li>Entity Framework Core: <a href="https://docs.microsoft.com/ef/core">https://docs.microsoft.com/ef/core</a></li>
+        <li>PostgreSQL: <a href="https://www.postgresql.org/docs">https://www.postgresql.org/docs</a></li>
+    </ul>
+</body>
+</html>

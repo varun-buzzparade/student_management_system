@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features & Functionality Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+            margin-top: 25px;
+        }
+        h3 {
+            color: #7f8c8d;
+            margin-top: 20px;
+        }
+        h4 {
+            color: #95a5a6;
+            margin-top: 15px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            overflow-x: auto;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .info-box {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .workflow {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .feature-list {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 30px 0;
+        }
+        strong {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Features & Functionality Documentation</h1>
+    
+    <h2>Table of Contents</h2>
+    <ol>
+        <li><a href="#user-roles">User Roles</a></li>
+        <li><a href="#authentication">Authentication & Authorization</a></li>
+        <li><a href="#admin-features">Admin Features</a></li>
+        <li><a href="#student-features">Student Features</a></li>
+        <li><a href="#common-features">Common Features</a></li>
+        <li><a href="#workflows">User Workflows</a></li>
+    </ol>
+
+    <hr>
+
+    <h2 id="user-roles">User Roles</h2>
+    
+    <p>The system supports two distinct user roles, each with specific permissions and capabilities:</p>
+    
+    <h3>1. Administrator Role</h3>
+    <ul>
+        <li>Full access to all student records</li>
+        <li>Ability to view, search, filter, and edit student information</li>
+        <li>Access to administrative dashboard</li>
+        <li>Cannot be created through the standard registration process</li>
+    </ul>
+    
+    <h3>2. Student Role</h3>
+    <ul>
+        <li>Self-service access to personal profile</li>
+        <li>Ability to view and update own information</li>
+        <li>Created through the public registration process</li>
+        <li>Cannot access other students' information</li>
+    </ul>
+
+    <hr>
+
+    <h2 id="authentication">Authentication & Authorization</h2>
+    
+    <h3>Login System</h3>
+    <div class="info-box">
+        <p><strong>URL</strong>: <code>/Account/Login</code><br>
+        <strong>Access</strong>: Public</p>
+    </div>
+    
+    <p><strong>Features:</strong></p>
+    <ul>
+        <li>Email-based authentication</li>
+        <li>Secure password verification</li>
+        <li>Role-based redirection after login</li>
+        <li>Session management</li>
+        <li>Remember return URL for seamless navigation</li>
+    </ul>
+    
+    <h3>Logout</h3>
+    <ul>
+        <li><strong>Access</strong>: Authenticated users only</li>
+        <li><strong>Action</strong>: Secure session termination</li>
+        <li><strong>Redirect</strong>: Returns to login page</li>
+    </ul>
+    
+    <h3>Security Features</h3>
+    <p><strong>Password complexity requirements:</strong></p>
+    <ul>
+        <li>Minimum 8 characters</li>
+        <li>At least 1 uppercase letter</li>
+        <li>At least 1 lowercase letter</li>
+        <li>At least 1 number</li>
+        <li>At least 1 special character</li>
+    </ul>
+    <p><strong>Additional security:</strong></p>
+    <ul>
+        <li>Anti-forgery token validation</li>
+        <li>Secure password hashing (ASP.NET Core Identity)</li>
+        <li>Account lockout protection</li>
+    </ul>
+
+    <hr>
+
+    <h2 id="admin-features">Admin Features</h2>
+    
+    <h3>1. Student Management Dashboard</h3>
+    
+    <div class="info-box">
+        <p><strong>URL</strong>: <code>/Admin/Index</code><br>
+        <strong>Access</strong>: Administrators only</p>
+    </div>
+    
+    <h4>Search & Filter Options</h4>
+    <ul>
+        <li><strong>Name Search</strong>: Case-insensitive partial match on full name</li>
+        <li><strong>Age Filter</strong>: Exact age match</li>
+        <li><strong>Gender Filter</strong>: Filter by Male, Female, or Unknown</li>
+        <li><strong>Mobile Number</strong>: Partial match search</li>
+        <li><strong>Email Address</strong>: Case-insensitive partial match</li>
+    </ul>
+    
+    <h4>Display Features</h4>
+    <ul>
+        <li>Paginated results (default: 20 students per page, configurable 5-100)</li>
+        <li>Total student count</li>
+        <li>Sortable columns</li>
+        <li>Clean, responsive table layout</li>
+    </ul>
+    
+    <h4>Displayed Information</h4>
+    <ul>
+        <li>Student ID (unique identifier)</li>
+        <li>Full Name</li>
+        <li>Age</li>
+        <li>Gender</li>
+        <li>Mobile Number</li>
+        <li>Email Address</li>
+        <li>Action buttons (View Details, Edit)</li>
+    </ul>
+    
+    <h3>2. View Student Details</h3>
+    
+    <div class="info-box">
+        <p><strong>URL</strong>: <code>/Admin/Details/{id}</code><br>
+        <strong>Access</strong>: Administrators only</p>
+    </div>
+    
+    <p><strong>Information Displayed:</strong></p>
+    <ul>
+        <li>Student ID</li>
+        <li>Full Name</li>
+        <li>Email Address</li>
+        <li>Age</li>
+        <li>Height (in centimeters)</li>
+        <li>Gender</li>
+        <li>Mobile Number</li>
+        <li>Account Creation Date</li>
+    </ul>
+    
+    <p><strong>Features:</strong></p>
+    <ul>
+        <li>Read-only view</li>
+        <li>Navigation back to student list</li>
+        <li>Option to edit student information</li>
+    </ul>
+    
+    <h3>3. Edit Student Information</h3>
+    
+    <div class="info-box">
+        <p><strong>URL</strong>: <code>/Admin/Edit/{id}</code><br>
+        <strong>Access</strong>: Administrators only</p>
+    </div>
+    
+    <p><strong>Editable Fields:</strong></p>
+    <ul>
+        <li>Full Name</li>
+        <li>Email Address (with duplicate check)</li>
+        <li>Age (numeric input)</li>
+        <li>Height in cm (decimal input)</li>
+        <li>Gender (dropdown: Male, Female, Unknown)</li>
+        <li>Mobile Number</li>
+    </ul>
+    
+    <p><strong>Validation:</strong></p>
+    <ul>
+        <li>Required field validation</li>
+        <li>Email format validation</li>
+        <li>Unique email enforcement</li>
+        <li>Numeric range validation for age and height</li>
+    </ul>
+    
+    <p><strong>Features:</strong></p>
+    <ul>
+        <li>Pre-populated form with current data</li>
+        <li>Real-time validation</li>
+        <li>Success/error messaging</li>
+        <li>Automatic username update on email change</li>
+    </ul>
+
+    <hr>
+
+    <h2 id="student-features">Student Features</h2>
+    
+    <h3>1. Student Registration</h3>
+    
+    <div class="info-box">
+        <p><strong>URL</strong>: <code>/Account/Register</code><br>
+        <strong>Access</strong>: Public (unauthenticated users)</p>
+    </div>
+    
+    <h4>Required Information</h4>
+    <ul>
+        <li>Full Name</li>
+        <li>Email Address (must be unique)</li>
+        <li>Age</li>
+        <li>Height (in centimeters)</li>
+        <li>Gender (Male, Female, Unknown)</li>
+        <li>Mobile Number</li>
+    </ul>
+    
+    <h4>Automatic Generation</h4>
+    <div class="feature-list">
+        <p><strong>Student ID:</strong> Unique 8-digit ID (format: STU followed by 5 digits)</p>
+        <ul>
+            <li>Example: <code>STU00001</code>, <code>STU00042</code></li>
+            <li>Sequential generation</li>
+            <li>Collision prevention</li>
+        </ul>
+        
+        <p><strong>Temporary Password:</strong> Secure random password</p>
+        <ul>
+            <li>Meets all complexity requirements</li>
+            <li>Auto-generated for security</li>
+        </ul>
+    </div>
+    
+    <h4>Post-Registration</h4>
+    <ol>
+        <li>Student account created in database</li>
+        <li>Student role assigned automatically</li>
+        <li>Credentials delivery (2 options):
+            <ul>
+                <li><strong>Email sent</strong> (if SMTP configured): Credentials emailed to student</li>
+                <li><strong>On-screen display</strong> (if email fails): Credentials shown on success page</li>
+            </ul>
+        </li>
+        <li>Redirect to login page</li>
+    </ol>
+    
+    <h3>2. Student Profile Management</h3>
+    
+    <div class="info-box">
+        <p><strong>URL</strong>: <code>/Student/Profile</code><br>
+        <strong>Access</strong>: Authenticated students only</p>
+    </div>
+    
+    <p><strong>View Mode:</strong></p>
+    <ul>
+        <li>Display all personal information</li>
+        <li>Read-only Student ID</li>
+        <li>Clean, organized layout</li>
+    </ul>
+    
+    <p><strong>Edit Mode:</strong></p>
+    <ul>
+        <li>Update Full Name</li>
+        <li>Change Email Address (with duplicate check)</li>
+        <li>Update Age</li>
+        <li>Modify Height</li>
+        <li>Change Gender</li>
+        <li>Update Mobile Number</li>
+    </ul>
+    
+    <p><strong>Features:</strong></p>
+    <ul>
+        <li>Inline form validation</li>
+        <li>Success messaging after updates</li>
+        <li>Cannot modify Student ID (system-generated, immutable)</li>
+        <li>Real-time validation feedback</li>
+    </ul>
+
+    <hr>
+
+    <h2 id="common-features">Common Features</h2>
+    
+    <h3>1. Navigation Bar</h3>
+    
+    <p><strong>Dynamic Navigation</strong> based on user role and authentication status:</p>
+    
+    <h4>Unauthenticated Users</h4>
+    <ul>
+        <li>Home</li>
+        <li>Login</li>
+        <li>Register</li>
+    </ul>
+    
+    <h4>Authenticated Students</h4>
+    <ul>
+        <li>Home</li>
+        <li>My Profile</li>
+        <li>User greeting (displays email)</li>
+        <li>Logout button</li>
+    </ul>
+    
+    <h4>Authenticated Administrators</h4>
+    <ul>
+        <li>Home</li>
+        <li>Students (link to admin dashboard)</li>
+        <li>User greeting (displays email)</li>
+        <li>Logout button</li>
+    </ul>
+    
+    <h3>2. Access Control</h3>
+    
+    <p><strong>URL Protection:</strong></p>
+    <ul>
+        <li>Unauthorized users redirected to login</li>
+        <li>Role-based page access enforcement</li>
+        <li>Access Denied page for unauthorized attempts</li>
+    </ul>
+    
+    <h3>3. Data Validation</h3>
+    
+    <p><strong>Client-Side Validation:</strong></p>
+    <ul>
+        <li>HTML5 form validation</li>
+        <li>Bootstrap validation styling</li>
+        <li>Real-time feedback</li>
+    </ul>
+    
+    <p><strong>Server-Side Validation:</strong></p>
+    <ul>
+        <li>Model state validation</li>
+        <li>Business rule enforcement</li>
+        <li>Duplicate email detection</li>
+        <li>Data type validation</li>
+    </ul>
+
+    <hr>
+
+    <h2 id="workflows">User Workflows</h2>
+    
+    <h3>Admin Workflow: Managing Students</h3>
+    
+    <div class="workflow">
+        <ol>
+            <li>Login as Administrator</li>
+            <li>Click "Students" in navigation</li>
+            <li>View student list (default: all students)</li>
+            <li>[Optional] Apply filters/search</li>
+            <li>Click "Details" to view student information<br>OR<br>Click "Edit" to modify student information</li>
+            <li>Make changes (if editing)</li>
+            <li>Save changes</li>
+            <li>View success message</li>
+            <li>Return to student list</li>
+        </ol>
+    </div>
+    
+    <h3>Student Workflow: Registration</h3>
+    
+    <div class="workflow">
+        <ol>
+            <li>Navigate to Register page</li>
+            <li>Fill in registration form:
+                <ul>
+                    <li>Full Name</li>
+                    <li>Email</li>
+                    <li>Age</li>
+                    <li>Height</li>
+                    <li>Gender</li>
+                    <li>Mobile Number</li>
+                </ul>
+            </li>
+            <li>Submit form</li>
+            <li>System generates:
+                <ul>
+                    <li>Unique Student ID</li>
+                    <li>Secure temporary password</li>
+                </ul>
+            </li>
+            <li>Credentials delivered:
+                <ul>
+                    <li>Via email (if configured)</li>
+                    <li>OR displayed on screen</li>
+                </ul>
+            </li>
+            <li>Save credentials</li>
+            <li>Navigate to Login</li>
+            <li>Login with provided credentials</li>
+        </ol>
+    </div>
+    
+    <h3>Student Workflow: Update Profile</h3>
+    
+    <div class="workflow">
+        <ol>
+            <li>Login as Student</li>
+            <li>Click "My Profile" in navigation</li>
+            <li>View current profile information</li>
+            <li>Scroll to edit form</li>
+            <li>Update desired fields</li>
+            <li>Submit changes</li>
+            <li>View success message</li>
+            <li>Verify updated information</li>
+        </ol>
+    </div>
+    
+    <h3>Admin Workflow: Search for Specific Student</h3>
+    
+    <div class="workflow">
+        <ol>
+            <li>Login as Administrator</li>
+            <li>Navigate to Students page</li>
+            <li>Apply search filters:
+                <ul>
+                    <li>Enter name (partial match works)</li>
+                    <li>Select age (optional)</li>
+                    <li>Select gender (optional)</li>
+                    <li>Enter mobile number (optional)</li>
+                    <li>Enter email (optional)</li>
+                </ul>
+            </li>
+            <li>Click Search/Apply</li>
+            <li>View filtered results</li>
+            <li>Click on student for more details</li>
+        </ol>
+    </div>
+
+    <hr>
+
+    <h2>Error Handling</h2>
+    
+    <h3>User-Friendly Error Messages</h3>
+    
+    <p><strong>Login Errors:</strong></p>
+    <ul>
+        <li>"Email and password are required"</li>
+        <li>"Invalid login attempt"</li>
+    </ul>
+    
+    <p><strong>Registration Errors:</strong></p>
+    <ul>
+        <li>"Email is already registered"</li>
+        <li>Field-specific validation messages</li>
+        <li>"Email delivery failed - please save these credentials now!"</li>
+    </ul>
+    
+    <p><strong>Update Errors:</strong></p>
+    <ul>
+        <li>"Email is already in use"</li>
+        <li>Field-specific validation errors</li>
+        <li>"Unable to update student information"</li>
+    </ul>
+    
+    <h3>Access Denied</h3>
+    <ul>
+        <li>Custom Access Denied page</li>
+        <li>Clear message indicating insufficient permissions</li>
+        <li>Link back to appropriate page</li>
+    </ul>
+
+    <hr>
+
+    <h2>Special Features</h2>
+    
+    <h3>1. Smart Email Handling</h3>
+    
+    <p>The system gracefully handles email configuration issues:</p>
+    
+    <ul>
+        <li><strong>Email Configured</strong>: Sends credentials via email</li>
+        <li><strong>Email Not Configured</strong>: Displays credentials on-screen with warning</li>
+        <li><strong>No Application Crash</strong>: Registration always succeeds</li>
+    </ul>
+    
+    <h3>2. Student ID Generation</h3>
+    
+    <ul>
+        <li>Sequential numbering</li>
+        <li>Format: STU + 5-digit number (padded with zeros)</li>
+        <li>Collision detection and retry logic</li>
+        <li>Guaranteed uniqueness</li>
+    </ul>
+    
+    <h3>3. Responsive Design</h3>
+    
+    <ul>
+        <li>Mobile-friendly interface</li>
+        <li>Bootstrap 5 framework</li>
+        <li>Optimized for all screen sizes</li>
+        <li>Touch-friendly controls</li>
+    </ul>
+    
+    <h3>4. Data Privacy</h3>
+    
+    <ul>
+        <li>Students can only access their own data</li>
+        <li>Administrators have full access</li>
+        <li>No cross-student data exposure</li>
+        <li>Secure session management</li>
+    </ul>
+
+    <hr>
+
+    <h2>Future Enhancement Possibilities</h2>
+    
+    <p>While not currently implemented, the system architecture supports:</p>
+    
+    <ul>
+        <li>Password reset functionality</li>
+        <li>Email verification</li>
+        <li>Student document uploads</li>
+        <li>Grade/course management</li>
+        <li>Bulk student import</li>
+        <li>Advanced reporting</li>
+        <li>Student photo uploads</li>
+        <li>Multi-factor authentication</li>
+        <li>Audit logging</li>
+        <li>Role-based admin hierarchy</li>
+    </ul>
+</body>
+</html>

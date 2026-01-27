@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System - README</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+            margin-top: 25px;
+        }
+        h3 {
+            color: #7f8c8d;
+            margin-top: 20px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            overflow-x: auto;
+            border-radius: 4px;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin: 15px 0;
+        }
+        .note {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 10px 15px;
+            margin: 15px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Student Management System</h1>
+    
+    <p>A comprehensive web-based student management system built with ASP.NET Core and PostgreSQL, featuring role-based access control for administrators and students.</p>
+
+    <h2>Overview</h2>
+    
+    <p>The Student Management System provides a secure platform for educational institutions to manage student information. The system supports two distinct user roles with specific capabilities:</p>
+    
+    <ul>
+        <li><strong>Administrators</strong>: Full access to manage all student records</li>
+        <li><strong>Students</strong>: Self-service portal for viewing and updating personal information</li>
+    </ul>
+
+    <h2>Quick Start</h2>
+
+    <h3>Prerequisites</h3>
+    
+    <ul>
+        <li>.NET 10.0 SDK</li>
+        <li>PostgreSQL 15 or higher</li>
+        <li>A modern web browser</li>
+    </ul>
+
+    <h3>Installation &amp; Setup</h3>
+    
+    <ol>
+        <li><strong>Clone or download the project</strong></li>
+        
+        <li><strong>Configure the database connection</strong>
+            <p>Edit <code>appsettings.json</code> and update the connection string:</p>
+            <pre><code>"ConnectionStrings": {
+  "DefaultConnection": "Host=localhost;Port=5432;Database=student_management_system;Username=postgres;Password=your_password"
+}</code></pre>
+        </li>
+        
+        <li><strong>Apply database migrations</strong>
+            <pre><code>dotnet ef database update</code></pre>
+        </li>
+        
+        <li><strong>Run the application</strong>
+            <pre><code>dotnet run</code></pre>
+        </li>
+        
+        <li><strong>Access the application</strong>
+            <p>Open your browser and navigate to: <code>http://localhost:5146</code></p>
+        </li>
+    </ol>
+
+    <h3>Default Admin Credentials</h3>
+    
+    <ul>
+        <li><strong>Email</strong>: <code>admin@school.local</code></li>
+        <li><strong>Password</strong>: <code>Admin@12345</code></li>
+    </ul>
+    
+    <div class="warning">
+        <strong>⚠️ Important:</strong> Change the default admin password after first login.
+    </div>
+
+    <h2>Documentation</h2>
+    
+    <ul>
+        <li><strong><a href="FEATURES.html">Features &amp; Functionality</a></strong> - Detailed description of all features and user workflows</li>
+        <li><strong><a href="TECHSTACK.html">Technical Stack</a></strong> - Architecture, technologies, and technical details</li>
+    </ul>
+
+    <h2>Project Structure</h2>
+    
+    <pre><code>student_management_system/
+├── Controllers/           # MVC Controllers
+│   ├── AccountController.cs
+│   ├── AdminController.cs
+│   ├── HomeController.cs
+│   └── StudentController.cs
+├── Data/                 # Database context and seeders
+│   ├── ApplicationDbContext.cs
+│   └── IdentitySeeder.cs
+├── Models/               # Domain models
+├── Services/             # Business logic services
+├── ViewModels/           # Data transfer objects
+├── Views/                # Razor views
+├── Migrations/           # EF Core migrations
+└── wwwroot/             # Static files</code></pre>
+
+    <h2>Key Features</h2>
+    
+    <ul>
+        <li>✅ Role-based authentication &amp; authorization</li>
+        <li>✅ Student registration with auto-generated IDs</li>
+        <li>✅ Admin dashboard with advanced search and filtering</li>
+        <li>✅ Student profile management</li>
+        <li>✅ Secure password generation</li>
+        <li>✅ Email notification system (configurable)</li>
+        <li>✅ Responsive Bootstrap UI</li>
+    </ul>
+
+    <h2>Configuration</h2>
+
+    <h3>Email Settings (Optional)</h3>
+    
+    <p>To enable email notifications, configure SMTP settings in <code>appsettings.json</code>:</p>
+    
+    <pre><code>"Smtp": {
+  "Host": "smtp.gmail.com",
+  "Port": 587,
+  "EnableSsl": true,
+  "UserName": "your_email@gmail.com",
+  "Password": "your_app_password",
+  "FromName": "Student Management System",
+  "FromEmail": "your_email@gmail.com"
+}</code></pre>
+    
+    <div class="note">
+        <strong>Note:</strong> If email is not configured, registration credentials will be displayed on-screen instead.
+    </div>
+
+    <h2>Security Features</h2>
+    
+    <ul>
+        <li>Password hashing using ASP.NET Core Identity</li>
+        <li>Anti-forgery token validation</li>
+        <li>Role-based authorization</li>
+        <li>Secure session management</li>
+        <li>SQL injection prevention via Entity Framework</li>
+    </ul>
+
+    <h2>Support &amp; Maintenance</h2>
+    
+    <p>For issues, questions, or contributions, please refer to the technical documentation in <code>TECHSTACK.md</code>.</p>
+
+    <h2>License</h2>
+    
+    <p>All rights reserved © 2026 Student Management System</p>
+</body>
+</html>

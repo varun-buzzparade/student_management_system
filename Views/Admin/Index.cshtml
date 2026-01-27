@@ -1,0 +1,173 @@
+@model StudentManagementSystem.ViewModels.AdminStudentListViewModel
+
+@{
+    ViewData["Title"] = "Student List";
+    var results = Model.Results;
+}
+
+<h2>Student List</h2>
+
+<form method="get" class="row g-3 mt-3">
+    <div class="col-md-3">
+        <label class="form-label">Name</label>
+        <input name="Name" value="@Model.Query.Name" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Age</label>
+        <input name="Age" value="@Model.Query.Age" class="form-control" type="number" min="1" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Gender</label>
+        <select name="Gender" class="form-select">
+            <option value="">All</option>
+            @foreach (var gender in Enum.GetValues<StudentManagementSystem.Models.Gender>())
+            {
+                <option value="@((int)gender)" selected="@(Model.Query.Gender == gender)">@gender</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Mobile</label>
+        <input name="MobileNumber" value="@Model.Query.MobileNumber" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Email</label>
+        <input name="Email" value="@Model.Query.Email" class="form-control" />
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a asp-action="Index" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+
+<div class="mt-4">
+    <p class="text-muted">Total Students: @results.TotalCount</p>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Mobile</th>
+                <th>Email</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @if (results.Items.Count == 0)
+        {
+            <tr>
+                <td colspan="7" class="text-center">No students found.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var student in results.Items)
+            {
+                <tr>
+                    <td>@student.StudentId</td>
+                    <td>@student.FullName</td>
+                    <td>@student.Age</td>
+                    <td>@student.Gender</td>
+                    <td>@student.MobileNumber</td>
+                    <td>@student.Email</td>
+                    <td class="text-nowrap">
+                        <a asp-action="Details" asp-route-id="@student.Id" class="btn btn-sm btn-outline-secondary">Details</a>
+                        <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+</div>
+
+@if (results.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(results.Page == 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(results.Page - 1)" asp-route-pageSize="@results.PageSize"
+                   asp-route-name="@Model.Query.Name" asp-route-age="@Model.Query.Age" asp-route-gender="@Model.Query.Gender"
+                   asp-route-mobileNumber="@Model.Query.MobileNumber" asp-route-email="@Model.Query.Email">Previous</a>
+            </li>
+            @{
+                var currentPage = results.Page;
+                var totalPages = results.TotalPages;
+                var pagesToShow = 13; // Total pages to show in the middle (between first and last)
+                var halfPages = pagesToShow / 2;
+                
+                int rangeStart, rangeEnd;
+                
+                if (currentPage <= halfPages + 1)
+                {
+                    // Near the beginning - extend to the right
+                    rangeStart = 2;
+                    rangeEnd = Math.Min(totalPages - 1, pagesToShow + 1);
+                }
+                else if (currentPage >= totalPages - halfPages)
+                {
+                    // Near the end - extend to the left
+                    rangeStart = Math.Max(2, totalPages - pagesToShow);
+                    rangeEnd = totalPages - 1;
+                }
+                else
+                {
+                    // In the middle - balanced on both sides
+                    rangeStart = currentPage - halfPages;
+                    rangeEnd = currentPage + halfPages;
+                }
+            }
+            
+            @* First page *@
+            <li class="page-item @(currentPage == 1 ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="1" asp-route-pageSize="@results.PageSize"
+                   asp-route-name="@Model.Query.Name" asp-route-age="@Model.Query.Age" asp-route-gender="@Model.Query.Gender"
+                   asp-route-mobileNumber="@Model.Query.MobileNumber" asp-route-email="@Model.Query.Email">1</a>
+            </li>
+            
+            @* Left ellipsis *@
+            @if (rangeStart > 2)
+            {
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            }
+            
+            @* Pages around current page *@
+            @for (var i = rangeStart; i <= rangeEnd; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-pageSize="@results.PageSize"
+                       asp-route-name="@Model.Query.Name" asp-route-age="@Model.Query.Age" asp-route-gender="@Model.Query.Gender"
+                       asp-route-mobileNumber="@Model.Query.MobileNumber" asp-route-email="@Model.Query.Email">@i</a>
+                </li>
+            }
+            
+            @* Right ellipsis *@
+            @if (rangeEnd < totalPages - 1)
+            {
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            }
+            
+            @* Last page *@
+            @if (totalPages > 1)
+            {
+                <li class="page-item @(currentPage == totalPages ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@totalPages" asp-route-pageSize="@results.PageSize"
+                       asp-route-name="@Model.Query.Name" asp-route-age="@Model.Query.Age" asp-route-gender="@Model.Query.Gender"
+                       asp-route-mobileNumber="@Model.Query.MobileNumber" asp-route-email="@Model.Query.Email">@totalPages</a>
+                </li>
+            }
+            
+            <li class="page-item @(results.Page == results.TotalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(results.Page + 1)" asp-route-pageSize="@results.PageSize"
+                   asp-route-name="@Model.Query.Name" asp-route-age="@Model.Query.Age" asp-route-gender="@Model.Query.Gender"
+                   asp-route-mobileNumber="@Model.Query.MobileNumber" asp-route-email="@Model.Query.Email">Next</a>
+            </li>
+        </ul>
+    </nav>
+}

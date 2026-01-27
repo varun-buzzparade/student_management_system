@@ -1,0 +1,33 @@
+@model StudentManagementSystem.ViewModels.AdminStudentEditViewModel
+
+@{
+    ViewData["Title"] = "Student Details";
+}
+
+<h2>Student Details</h2>
+
+<dl class="row mt-3">
+    <dt class="col-sm-3">Student ID</dt>
+    <dd class="col-sm-9">@Model.StudentId</dd>
+
+    <dt class="col-sm-3">Full Name</dt>
+    <dd class="col-sm-9">@Model.FullName</dd>
+
+    <dt class="col-sm-3">Age</dt>
+    <dd class="col-sm-9">@Model.Age</dd>
+
+    <dt class="col-sm-3">Height (cm)</dt>
+    <dd class="col-sm-9">@Model.HeightCm</dd>
+
+    <dt class="col-sm-3">Gender</dt>
+    <dd class="col-sm-9">@Model.Gender</dd>
+
+    <dt class="col-sm-3">Mobile</dt>
+    <dd class="col-sm-9">@Model.MobileNumber</dd>
+
+    <dt class="col-sm-3">Email</dt>
+    <dd class="col-sm-9">@Model.Email</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>
