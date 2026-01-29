@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using StudentManagementSystem.Configuration;
 using StudentManagementSystem.Models;
 
 namespace StudentManagementSystem.Data;
 
 /// <summary>
-/// Ensures Admin and Student roles exist, and optionally creates a default admin user
-/// when AdminCredentials:Email and AdminCredentials:Password are set in configuration.
+/// Ensures Admin and Student roles exist, then seeds admin users from config (AdminUsers:0, :1, ...
+/// or legacy AdminCredentials). Each admin is created via helpers; add new entries in config to add admins.
 /// </summary>
 public static class IdentitySeeder
 {
@@ -19,39 +20,10 @@ public static class IdentitySeeder
         await EnsureRoleAsync(roleManager, Roles.Admin);
         await EnsureRoleAsync(roleManager, Roles.Student);
 
-        var adminEmail = configuration["AdminCredentials:Email"];
-        var adminPassword = configuration["AdminCredentials:Password"];
-
-        if (string.IsNullOrWhiteSpace(adminEmail) || string.IsNullOrWhiteSpace(adminPassword))
+        var seeds = AdminSeedHelper.GetAdminUserSeedsFromConfig(configuration);
+        foreach (var seed in seeds)
         {
-            return;
-        }
-
-        var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
-        if (existingAdmin != null)
-        {
-            if (!await userManager.IsInRoleAsync(existingAdmin, Roles.Admin))
-            {
-                await userManager.AddToRoleAsync(existingAdmin, Roles.Admin);
-            }
-            return;
-        }
-
-        var adminUser = new ApplicationUser
-        {
-            UserName = adminEmail,
-            Email = adminEmail,
-            FullName = "System Administrator",
-            Age = 30,
-            HeightCm = 170,
-            Gender = Gender.Unknown,
-            MobileNumber = "0000000000"
-        };
-
-        var result = await userManager.CreateAsync(adminUser, adminPassword);
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(adminUser, Roles.Admin);
+            await AdminSeedHelper.EnsureAdminExistsAsync(userManager, seed);
         }
     }
 

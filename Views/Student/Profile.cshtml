@@ -4,8 +4,7 @@
     ViewData["Title"] = "My Profile";
 }
 
-<!-- Toastr CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+<link rel="stylesheet" href="~/lib/toastr/toastr.min.css" />
 
 <h2>My Profile</h2>
 
@@ -66,136 +65,10 @@
 </form>
 
 @section Scripts {
-    <!-- Toastr JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    <script src="~/js/profile-edit-queue.js" asp-append-version="true"></script>
     <script>
-        // Configure Toastr
-        toastr.options = {
-            "closeButton": true,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "timeOut": "3000"
-        };
-
-        // Queue for managing AJAX requests
-        class RequestQueue {
-            constructor() {
-                this.queue = [];
-                this.isProcessing = false;
-            }
-
-            add(request) {
-                this.queue.push(request);
-                this.process();
-            }
-
-            async process() {
-                if (this.isProcessing || this.queue.length === 0) {
-                    return;
-                }
-
-                this.isProcessing = true;
-                const request = this.queue.shift();
-
-                try {
-                    await request();
-                } catch (error) {
-                    console.error('Request failed:', error);
-                }
-
-                this.isProcessing = false;
-                this.process(); // Process next item
-            }
-        }
-
-        const requestQueue = new RequestQueue();
-
-        // Store original values when page loads
-        const originalValues = {};
-        document.querySelectorAll('[data-endpoint]').forEach(field => {
-            originalValues[field.id] = field.value;
-        });
-
-        // Handle form submission
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const saveBtn = document.getElementById('saveBtn');
-            
-            // Get all fields that need to be updated
-            const fields = document.querySelectorAll('[data-endpoint]');
-            const changedFields = [];
-
-            // Check which fields have changed
-            fields.forEach(field => {
-                if (field.value !== originalValues[field.id]) {
-                    changedFields.push(field);
-                }
-            });
-
-            // If no fields changed, show info message
-            if (changedFields.length === 0) {
-                toastr.info('No changes detected');
-                return;
-            }
-
-            // Disable save button during updates
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
-
-            let completedRequests = 0;
-            const totalRequests = changedFields.length;
-
-            changedFields.forEach(field => {
-                const endpoint = field.getAttribute('data-endpoint');
-                const value = field.value;
-
-                // Add each changed field update to the queue
-                requestQueue.add(async () => {
-                    try {
-                        const response = await fetch(`/Student/${endpoint}?value=${encodeURIComponent(value)}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-
-                        const result = await response.json();
-                        
-                        completedRequests++;
-
-                        if (result.success) {
-                            toastr.success(result.message);
-                            
-                            // Update original value after successful update
-                            originalValues[field.id] = value;
-                            
-                            // Update age field if date of birth was changed
-                            if (endpoint === 'UpdateDateOfBirth' && result.age !== undefined) {
-                                document.getElementById('age').value = result.age;
-                            }
-                        } else {
-                            toastr.error(result.message || 'Update failed');
-                        }
-
-                        // Re-enable button when all requests complete
-                        if (completedRequests === totalRequests) {
-                            saveBtn.disabled = false;
-                            saveBtn.innerHTML = 'Save Changes';
-                        }
-                    } catch (error) {
-                        completedRequests++;
-                        toastr.error('Network error occurred');
-                        console.error('Error:', error);
-
-                        if (completedRequests === totalRequests) {
-                            saveBtn.disabled = false;
-                            saveBtn.innerHTML = 'Save Changes';
-                        }
-                    }
-                });
-            });
-        });
+        @* Student Profile: basePath /Student, no userId (current user) *@
+        initProfileEditQueue({ formId: 'profileForm', basePath: '/Student', ageFieldId: 'age' });
     </script>
 }

@@ -1,0 +1,6 @@
+<p>Hello {{FullName}},</p>
+<p>Your student account has been created successfully.</p>
+<p><strong>Student ID:</strong> {{StudentId}}</p>
+<p><strong>Login Email:</strong> {{Email}}</p>
+<p><strong>Temporary Password:</strong> {{Password}}</p>
+<p>Please log in and update your profile as needed.</p>

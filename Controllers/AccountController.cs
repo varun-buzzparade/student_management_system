@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using StudentManagementSystem.Models;
-using StudentManagementSystem.Services;
+using StudentManagementSystem.Services.Student.Registration;
 using StudentManagementSystem.ViewModels;
 
 namespace StudentManagementSystem.Controllers;
@@ -69,6 +70,8 @@ public class AccountController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
+    [RequestFormLimits(MultipartBodyLengthLimit = 110 * 1024 * 1024)] // 110 MB (100 MB video + 5 MB image + form)
+    [RequestSizeLimit(110 * 1024 * 1024)]
     public async Task<IActionResult> Register(StudentRegistrationViewModel model)
     {
         if (!ModelState.IsValid)
@@ -78,12 +81,7 @@ public class AccountController : Controller
 
         if (!result.Success)
         {
-            // Bind "Email is already registered" to Email field so validation appears next to the input
-            var isEmailError = result.Errors.Count == 1 &&
-                result.Errors[0].Contains("Email", StringComparison.OrdinalIgnoreCase) &&
-                result.Errors[0].Contains("already", StringComparison.OrdinalIgnoreCase);
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(isEmailError ? nameof(model.Email) : string.Empty, error);
+            AddRegistrationErrorsToModelState(ModelState, result.Errors, model);
             return View(model);
         }
 
@@ -95,5 +93,16 @@ public class AccountController : Controller
     public IActionResult AccessDenied()
     {
         return View();
+    }
+
+    /// <summary>Adds registration errors to ModelState. Binds "Email already registered" to Email field so validation appears next to the input.</summary>
+    private static void AddRegistrationErrorsToModelState(ModelStateDictionary modelState, IReadOnlyList<string> errors, StudentRegistrationViewModel model)
+    {
+        var isEmailError = errors.Count == 1 &&
+            errors[0].Contains("Email", StringComparison.OrdinalIgnoreCase) &&
+            errors[0].Contains("already", StringComparison.OrdinalIgnoreCase);
+        var key = isEmailError ? nameof(model.Email) : string.Empty;
+        foreach (var error in errors)
+            modelState.AddModelError(key, error);
     }
 }

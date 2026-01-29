@@ -1,12 +1,21 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using StudentManagementSystem.Configuration;
 using StudentManagementSystem.Data;
 using StudentManagementSystem.Models;
-using StudentManagementSystem.Services;
+using StudentManagementSystem.Services.Email;
+using StudentManagementSystem.Services.Shared;
+using StudentManagementSystem.Services.Student.List;
+using StudentManagementSystem.Services.Student.Mapping;
+using StudentManagementSystem.Services.Student.Registration;
+using StudentManagementSystem.Services.Student.Update;
+using StudentManagementSystem.Services.Student.Upload;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = 110 * 1024 * 1024); // 110 MB for registration uploads
+
+var connectionString = ConfigHelper.GetConnectionString("DefaultConnection", builder.Configuration)
     ?? throw new InvalidOperationException("Missing DefaultConnection string.");
 
 // Database & Identity
@@ -39,11 +48,11 @@ builder.Services.AddScoped<IEmailSenderService, SmtpEmailSender>();
 // Distributed cache (Redis / Memurai) for admin student list
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+    options.Configuration = ConfigHelper.GetConnectionString("Redis", builder.Configuration) ?? "localhost:6379";
     options.InstanceName = "StudentMgmt_";
 });
 
-// Application services (SOLID: depend on interfaces; see DI 101 in LEARN_FROM_SCRATCH.md)
+// Application services
 builder.Services.AddSingleton<IAgeCalculator, AgeCalculator>();
 builder.Services.AddSingleton<IPasswordGenerator, PasswordGeneratorService>();
 builder.Services.AddScoped<IStudentIdGenerator, StudentIdGeneratorService>();
@@ -52,6 +61,7 @@ builder.Services.AddScoped<IStudentQueryService, StudentQueryService>();
 builder.Services.AddScoped<IStudentViewModelMapper, StudentViewModelMapper>();
 builder.Services.AddScoped<IStudentUpdateService, StudentUpdateService>();
 builder.Services.AddScoped<IStudentRegistrationService, StudentRegistrationService>();
+builder.Services.AddScoped<IStudentFileUploadService, StudentFileUploadService>();
 
 builder.Services.AddControllersWithViews();
 
@@ -77,7 +87,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// Ensure roles exist and optionally create default admin from config (AdminCredentials)
+// Ensure roles exist and seed admin users from config (AdminUsers or legacy AdminCredentials)
 using (var scope = app.Services.CreateScope())
 {
     await IdentitySeeder.SeedAsync(scope.ServiceProvider);

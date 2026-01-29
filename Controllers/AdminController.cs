@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentManagementSystem.Models;
-using StudentManagementSystem.Services;
+using StudentManagementSystem.Services.Shared;
+using StudentManagementSystem.Services.Student.List;
+using StudentManagementSystem.Services.Student.Mapping;
+using StudentManagementSystem.Services.Student.Update;
 using StudentManagementSystem.ViewModels;
 
 namespace StudentManagementSystem.Controllers;
@@ -29,18 +32,12 @@ public class AdminController : Controller
     [HttpGet]
     public async Task<IActionResult> Index([FromQuery] StudentListQueryViewModel query, CancellationToken cancellationToken = default)
     {
-        NormalizeListQuery(query);
+        StudentListQueryNormalizer.Normalize(query);
         var model = await _listCache.GetOrAddAsync(
             query,
             (q, ct) => _queryService.GetPagedStudentsAsync(q, ct),
             cancellationToken);
         return View(model);
-    }
-
-    private static void NormalizeListQuery(StudentListQueryViewModel q)
-    {
-        if (q.Page < 1) q.Page = 1;
-        if (q.PageSize is < 5 or > 100) q.PageSize = 20;
     }
 
     [HttpGet]
@@ -84,44 +81,40 @@ public class AdminController : Controller
 
     // AJAX endpoints used by Admin/Edit view for per-field updates (no full-page POST)
     [HttpPost]
-    public async Task<IActionResult> UpdateFullName(string id, string value, CancellationToken cancellationToken = default)
-    {
-        var r = await _updateService.UpdateFullNameAsync(id, value, cancellationToken);
-        return Json(new { success = r.Success, message = r.Message });
-    }
+    public Task<IActionResult> UpdateFullName(string id, string value, CancellationToken cancellationToken = default) =>
+        UpdateFieldAsync(id, value, _updateService.UpdateFullNameAsync, cancellationToken, includeAge: false);
 
     [HttpPost]
-    public async Task<IActionResult> UpdateDateOfBirth(string id, string value, CancellationToken cancellationToken = default)
-    {
-        var r = await _updateService.UpdateDateOfBirthAsync(id, value, cancellationToken);
-        return Json(new { success = r.Success, message = r.Message, age = r.Age });
-    }
+    public Task<IActionResult> UpdateDateOfBirth(string id, string value, CancellationToken cancellationToken = default) =>
+        UpdateFieldAsync(id, value, _updateService.UpdateDateOfBirthAsync, cancellationToken, includeAge: true);
 
     [HttpPost]
-    public async Task<IActionResult> UpdateHeightCm(string id, string value, CancellationToken cancellationToken = default)
-    {
-        var r = await _updateService.UpdateHeightCmAsync(id, value, cancellationToken);
-        return Json(new { success = r.Success, message = r.Message });
-    }
+    public Task<IActionResult> UpdateHeightCm(string id, string value, CancellationToken cancellationToken = default) =>
+        UpdateFieldAsync(id, value, _updateService.UpdateHeightCmAsync, cancellationToken, includeAge: false);
 
     [HttpPost]
-    public async Task<IActionResult> UpdateGender(string id, string value, CancellationToken cancellationToken = default)
-    {
-        var r = await _updateService.UpdateGenderAsync(id, value, cancellationToken);
-        return Json(new { success = r.Success, message = r.Message });
-    }
+    public Task<IActionResult> UpdateGender(string id, string value, CancellationToken cancellationToken = default) =>
+        UpdateFieldAsync(id, value, _updateService.UpdateGenderAsync, cancellationToken, includeAge: false);
 
     [HttpPost]
-    public async Task<IActionResult> UpdateMobileNumber(string id, string value, CancellationToken cancellationToken = default)
-    {
-        var r = await _updateService.UpdateMobileNumberAsync(id, value, cancellationToken);
-        return Json(new { success = r.Success, message = r.Message });
-    }
+    public Task<IActionResult> UpdateMobileNumber(string id, string value, CancellationToken cancellationToken = default) =>
+        UpdateFieldAsync(id, value, _updateService.UpdateMobileNumberAsync, cancellationToken, includeAge: false);
 
     [HttpPost]
-    public async Task<IActionResult> UpdateEmail(string id, string value, CancellationToken cancellationToken = default)
+    public Task<IActionResult> UpdateEmail(string id, string value, CancellationToken cancellationToken = default) =>
+        UpdateFieldAsync(id, value, _updateService.UpdateEmailAsync, cancellationToken, includeAge: false);
+
+    /// <summary>Shared logic for AJAX per-field updates: call update service, return JSON. Used by all Update* actions.</summary>
+    private async Task<IActionResult> UpdateFieldAsync(
+        string id,
+        string value,
+        Func<string, string, CancellationToken, Task<FieldUpdateResult>> update,
+        CancellationToken cancellationToken,
+        bool includeAge)
     {
-        var r = await _updateService.UpdateEmailAsync(id, value, cancellationToken);
-        return Json(new { success = r.Success, message = r.Message });
+        var r = await update(id, value, cancellationToken);
+        return includeAge
+            ? Json(new { success = r.Success, message = r.Message, age = r.Age })
+            : Json(new { success = r.Success, message = r.Message });
     }
 }

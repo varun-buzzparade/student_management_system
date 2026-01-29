@@ -25,5 +25,13 @@ public class ApplicationUser : IdentityUser
     [MaxLength(20)]
     public string? MobileNumber { get; set; }
 
+    /// <summary>Relative path under wwwroot, e.g. uploads/images/{studentId}/file.jpg.</summary>
+    [MaxLength(500)]
+    public string? ProfileImagePath { get; set; }
+
+    /// <summary>Relative path under wwwroot, e.g. uploads/videos/{studentId}/file.mp4.</summary>
+    [MaxLength(500)]
+    public string? ProfileVideoPath { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

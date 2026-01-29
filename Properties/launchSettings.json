@@ -1,22 +1,28 @@
-﻿{
+{
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
     "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
+      "launchUrl": "/",
       "applicationUrl": "http://localhost:5146",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AdminCredentials__Email": "admin@school.local",
+        "AdminCredentials__Password": "Admin@12345"
       }
     },
     "https": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
+      "launchUrl": "/",
       "applicationUrl": "https://localhost:7284;http://localhost:5146",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AdminCredentials__Email": "admin@school.local",
+        "AdminCredentials__Password": "Admin@12345"
       }
     }
   }

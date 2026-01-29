@@ -6,43 +6,57 @@
 
 <h2>Student Registration</h2>
 
-<form asp-action="Register" method="post" class="mt-3">
+<form asp-action="Register" method="post" class="mt-3" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="mb-3">
-        <label asp-for="FullName" class="form-label"></label>
-        <input asp-for="FullName" class="form-control" />
+        <label class="form-label" for="reg_FullName">Full Name</label>
+        <input asp-for="FullName" class="form-control" id="reg_FullName" />
         <span asp-validation-for="FullName" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="DateOfBirth" class="form-label"></label>
-        <input asp-for="DateOfBirth" type="date" class="form-control" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        <label class="form-label" for="reg_DateOfBirth">Date of Birth</label>
+        <input asp-for="DateOfBirth" type="date" class="form-control" id="reg_DateOfBirth" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
         <span asp-validation-for="DateOfBirth" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="HeightCm" class="form-label"></label>
-        <input asp-for="HeightCm" class="form-control" />
+        <label class="form-label" for="reg_HeightCm">Height (cm)</label>
+        <input asp-for="HeightCm" class="form-control" id="reg_HeightCm" />
         <span asp-validation-for="HeightCm" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Gender" class="form-label"></label>
-        <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<StudentManagementSystem.Models.Gender>()"></select>
+        <label class="form-label" for="reg_Gender">Gender</label>
+        <select asp-for="Gender" class="form-select" id="reg_Gender" asp-items="Html.GetEnumSelectList<StudentManagementSystem.Models.Gender>()"></select>
         <span asp-validation-for="Gender" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="MobileNumber" class="form-label"></label>
-        <input asp-for="MobileNumber" class="form-control" />
+        <label class="form-label" for="reg_MobileNumber">Mobile Number</label>
+        <input asp-for="MobileNumber" class="form-control" id="reg_MobileNumber" />
         <span asp-validation-for="MobileNumber" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
+        <label class="form-label" for="reg_Email">Email Address</label>
+        <input asp-for="Email" class="form-control" id="reg_Email" />
         <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="reg_ProfileImage">Profile Image</label>
+        <input asp-for="ProfileImage" type="file" class="form-control" id="reg_ProfileImage" accept=".jpeg,.jpg,.png" />
+        <small class="form-text text-muted">Optional. Max 5 MB. JPEG, JPG, PNG only.</small>
+        <span asp-validation-for="ProfileImage" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="reg_ProfileVideo">Profile Video</label>
+        <input asp-for="ProfileVideo" type="file" class="form-control" id="reg_ProfileVideo" accept=".mp4,.mov,.mkv,.avi,.wmv" />
+        <small class="form-text text-muted">Optional. Max 100 MB. MP4, MOV, MKV, AVI, WMV only.</small>
+        <span asp-validation-for="ProfileVideo" class="text-danger"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Register</button>
