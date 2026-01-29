@@ -10,7 +10,7 @@
 - Cache key includes query params (page, page size, filters); version bumped when a new student registers to invalidate all list caches.
 
 **Configuration:**
-- `appsettings.json` and `appsettings.example.json`: `ConnectionStrings:Redis` (e.g. `localhost:6379`).
+- `appsettings.json`: `ConnectionStrings:Redis` (e.g. `localhost:6379`).
 - Redis/Memurai must be running separately; the app does not start it.
 
 **Files touched:**
