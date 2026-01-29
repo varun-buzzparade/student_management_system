@@ -123,7 +123,7 @@ Emails may still NOT work because:
 3. You may need an app-specific password
 
 **What To Do:**
-- See `SMTP_SETUP.md` for detailed instructions
+- Configure SMTP in `appsettings.json` per your provider (Gmail, Office 365, etc.)
 - Contact your IT department for correct SMTP settings
 - Or use Gmail with an app password for testing
 
@@ -168,7 +168,7 @@ Emails may still NOT work because:
 3. If no email:
    - Credentials should display on success screen
    - Check terminal for error messages
-   - Follow `SMTP_SETUP.md` guide
+   - Verify SMTP settings in `appsettings.json`
 
 ---
 
@@ -225,7 +225,7 @@ Then restore the previous versions of the modified files from version control.
 ## Support
 
 **For SMTP Issues:**
-- Read `SMTP_SETUP.md`
+- Verify `appsettings.json` Smtp section (Host, Port, credentials)
 - Contact your IT department
 - Use Gmail for testing (see guide)
 
