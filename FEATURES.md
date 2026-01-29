@@ -76,10 +76,15 @@ The system supports two distinct user roles, each with specific permissions and 
 - **Mobile Number**: Partial match search
 - **Email Address**: Case-insensitive partial match
 
+#### Caching
+- **Redis-backed cache** for the students list (per query/filter/page)
+- Cache invalidated automatically when a new student registers
+- Reduces database load for repeated admin list views
+
 #### Display Features
 - Paginated results (default: 20 students per page, configurable 5-100)
+- **Truncated pagination bar** (e.g. `1 2 3 … 500`), ~15 page slots, centered below the table
 - Total student count
-- Sortable columns
 - Clean, responsive table layout
 
 #### Displayed Information
@@ -121,7 +126,7 @@ The system supports two distinct user roles, each with specific permissions and 
 **Editable Fields**:
 - Full Name
 - Email Address (with duplicate check)
-- Age (numeric input)
+- Date of Birth (date picker; age is read-only, auto-calculated)
 - Height in cm (decimal input)
 - Gender (dropdown: Male, Female, Unknown)
 - Mobile Number
@@ -130,12 +135,14 @@ The system supports two distinct user roles, each with specific permissions and 
 - Required field validation
 - Email format validation
 - Unique email enforcement
-- Numeric range validation for age and height
+- Numeric range validation for height
+- Date of Birth range (e.g. year from 1900 to today)
 
 **Features**:
 - Pre-populated form with current data
-- Real-time validation
-- Success/error messaging
+- **AJAX updates**: "Save Changes" submits via AJAX—no page reload
+- **Per-field POST APIs**: Each changed field triggers a separate API call; updates are queued to avoid conflicts
+- **Toastr notifications**: Success toasts only for fields that were updated; errors shown on failure
 - Automatic username update on email change
 
 ---
@@ -153,7 +160,7 @@ The system supports two distinct user roles, each with specific permissions and 
 #### Required Information
 - Full Name
 - Email Address (must be unique)
-- Age
+- **Date of Birth** (date picker; age is auto-calculated, year from 1900 to today)
 - Height (in centimeters)
 - Gender (Male, Female, Unknown)
 - Mobile Number
@@ -170,10 +177,11 @@ The system supports two distinct user roles, each with specific permissions and 
 #### Post-Registration
 1. Student account created in database
 2. Student role assigned automatically
-3. Credentials delivery (2 options):
+3. **Admin students list cache** is cleared (so the new student appears immediately)
+4. Credentials delivery (2 options):
    - **Email sent** (if SMTP configured): Credentials emailed to student
    - **On-screen display** (if email fails): Credentials shown on success page
-4. Redirect to login page
+5. Redirect to login page
 
 ### 2. Student Profile Management
 
@@ -189,16 +197,17 @@ The system supports two distinct user roles, each with specific permissions and 
 **Edit Mode**:
 - Update Full Name
 - Change Email Address (with duplicate check)
-- Update Age
+- Update Date of Birth (age read-only, auto-calculated)
 - Modify Height
 - Change Gender
 - Update Mobile Number
 
 **Features**:
+- **AJAX updates**: "Save Changes" submits via AJAX—no page reload
+- **Per-field POST APIs**: Only changed fields are sent; updates are queued to avoid conflicts
+- **Toastr notifications**: Success toasts only for updated fields; errors on failure
 - Inline form validation
-- Success messaging after updates
 - Cannot modify Student ID (system-generated, immutable)
-- Real-time validation feedback
 
 ---
 
@@ -256,9 +265,9 @@ The system supports two distinct user roles, each with specific permissions and 
    ↓
 2. Click "Students" in navigation
    ↓
-3. View student list (default: all students)
+3. View student list (default: all students; cached via Redis when applicable)
    ↓
-4. [Optional] Apply filters/search
+4. [Optional] Apply filters/search or use pagination (1 2 3 … N)
    ↓
 5. Click "Details" to view student information
    OR
@@ -266,11 +275,9 @@ The system supports two distinct user roles, each with specific permissions and 
    ↓
 6. Make changes (if editing)
    ↓
-7. Save changes
+7. Click "Save Changes" (AJAX—no reload; Toastr per updated field)
    ↓
-8. View success message
-   ↓
-9. Return to student list
+8. Continue editing or navigate away
 ```
 
 ### Student Workflow: Registration
@@ -281,7 +288,7 @@ The system supports two distinct user roles, each with specific permissions and 
 2. Fill in registration form
    - Full Name
    - Email
-   - Age
+   - Date of Birth
    - Height
    - Gender
    - Mobile Number
@@ -312,15 +319,11 @@ The system supports two distinct user roles, each with specific permissions and 
    ↓
 3. View current profile information
    ↓
-4. Scroll to edit form
+4. Update desired fields in edit form
    ↓
-5. Update desired fields
+5. Click "Save Changes" (AJAX—no reload; Toastr for each updated field)
    ↓
-6. Submit changes
-   ↓
-7. View success message
-   ↓
-8. Verify updated information
+6. Verify updated information
 ```
 
 ### Admin Workflow: Search for Specific Student
@@ -401,6 +404,11 @@ The system gracefully handles email configuration issues:
 - Administrators have full access
 - No cross-student data exposure
 - Secure session management
+
+### 5. Redis Caching & AJAX Profile Updates
+
+- **Redis caching**: Admin students list is cached (Redis or Memurai). Cache is invalidated when a new student registers.
+- **AJAX profile updates**: Admin Edit and Student Profile use AJAX for "Save Changes"—no full-page reload. Per-field POST APIs, queued requests, and Toastr success/error toasts only for updated fields.
 
 ---
 

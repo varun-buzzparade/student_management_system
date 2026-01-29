@@ -55,6 +55,9 @@ appsettings.json
 appsettings.Development.json
 appsettings.Production.json
 
+# Local learning / scratch documentation (optional: remove to track in repo)
+LEARN_FROM_SCRATCH.md
+
 # NuGet Packages
 *.nupkg
 *.snupkg

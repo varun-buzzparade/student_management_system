@@ -3,19 +3,17 @@ using System.Text;
 
 namespace StudentManagementSystem.Services;
 
-public static class PasswordGenerator
+public sealed class PasswordGeneratorService : IPasswordGenerator
 {
     private static readonly char[] Uppercase = "ABCDEFGHJKLMNPQRSTUVWXYZ".ToCharArray();
     private static readonly char[] Lowercase = "abcdefghijkmnpqrstuvwxyz".ToCharArray();
     private static readonly char[] Digits = "23456789".ToCharArray();
     private static readonly char[] Symbols = "!@$%*?_-".ToCharArray();
 
-    public static string Generate(int length = 12)
+    public string Generate(int length = 12)
     {
         if (length < 8)
-        {
             length = 8;
-        }
 
         var chars = new List<char>
         {
@@ -27,9 +25,7 @@ public static class PasswordGenerator
 
         var all = Uppercase.Concat(Lowercase).Concat(Digits).Concat(Symbols).ToArray();
         while (chars.Count < length)
-        {
             chars.Add(GetRandomChar(all));
-        }
 
         Shuffle(chars);
         return new string(chars.ToArray());

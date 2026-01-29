@@ -4,68 +4,202 @@
     ViewData["Title"] = "Edit Student";
 }
 
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
 <h2>Edit Student</h2>
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-}
-
-<form asp-action="Edit" method="post" class="mt-3">
-    <input type="hidden" asp-for="Id" />
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+<form id="editStudentForm" class="mt-3">
+    <input type="hidden" id="studentId" value="@Model.Id" />
+    
     <div class="mb-3">
         <label class="form-label">Student ID</label>
         <input class="form-control" value="@Model.StudentId" readonly />
     </div>
 
     <div class="mb-3">
-        <label asp-for="FullName" class="form-label"></label>
-        <input asp-for="FullName" class="form-control" />
-        <span asp-validation-for="FullName" class="text-danger"></span>
+        <label for="fullName" class="form-label">Full Name</label>
+        <input id="fullName" name="FullName" class="form-control" value="@Model.FullName" data-field="FullName" data-endpoint="UpdateFullName" />
+        <span class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="DateOfBirth" class="form-label"></label>
-        <input asp-for="DateOfBirth" type="date" class="form-control" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
-        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+        <label for="dateOfBirth" class="form-label">Date of Birth</label>
+        <input id="dateOfBirth" name="DateOfBirth" type="date" class="form-control" value="@Model.DateOfBirth.ToString("yyyy-MM-dd")" data-field="DateOfBirth" data-endpoint="UpdateDateOfBirth" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        <span class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Age" class="form-label"></label>
-        <input asp-for="Age" class="form-control" readonly />
+        <label for="age" class="form-label">Age</label>
+        <input id="age" name="Age" class="form-control" value="@Model.Age" readonly />
         <small class="form-text text-muted">Calculated from Date of Birth</small>
     </div>
 
     <div class="mb-3">
-        <label asp-for="HeightCm" class="form-label"></label>
-        <input asp-for="HeightCm" class="form-control" />
-        <span asp-validation-for="HeightCm" class="text-danger"></span>
+        <label for="heightCm" class="form-label">Height (cm)</label>
+        <input id="heightCm" name="HeightCm" class="form-control" value="@Model.HeightCm" data-field="HeightCm" data-endpoint="UpdateHeightCm" />
+        <span class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Gender" class="form-label"></label>
-        <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<StudentManagementSystem.Models.Gender>()"></select>
-        <span asp-validation-for="Gender" class="text-danger"></span>
+        <label for="gender" class="form-label">Gender</label>
+        <select id="gender" name="Gender" class="form-select" data-field="Gender" data-endpoint="UpdateGender">
+            @foreach (var gender in Enum.GetValues<StudentManagementSystem.Models.Gender>())
+            {
+                <option value="@gender" selected="@(Model.Gender == gender)">@gender</option>
+            }
+        </select>
+        <span class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="MobileNumber" class="form-label"></label>
-        <input asp-for="MobileNumber" class="form-control" />
-        <span asp-validation-for="MobileNumber" class="text-danger"></span>
+        <label for="mobileNumber" class="form-label">Mobile Number</label>
+        <input id="mobileNumber" name="MobileNumber" class="form-control" value="@Model.MobileNumber" data-field="MobileNumber" data-endpoint="UpdateMobileNumber" />
+        <span class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+        <label for="email" class="form-label">Email</label>
+        <input id="email" name="Email" class="form-control" value="@Model.Email" data-field="Email" data-endpoint="UpdateEmail" />
+        <span class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <button type="submit" class="btn btn-primary" id="saveBtn">Save Changes</button>
     <a asp-action="Index" class="btn btn-secondary">Back to List</a>
 </form>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <script>
+        // Configure Toastr
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        };
+
+        // Queue for managing AJAX requests
+        class RequestQueue {
+            constructor() {
+                this.queue = [];
+                this.isProcessing = false;
+            }
+
+            add(request) {
+                this.queue.push(request);
+                this.process();
+            }
+
+            async process() {
+                if (this.isProcessing || this.queue.length === 0) {
+                    return;
+                }
+
+                this.isProcessing = true;
+                const request = this.queue.shift();
+
+                try {
+                    await request();
+                } catch (error) {
+                    console.error('Request failed:', error);
+                }
+
+                this.isProcessing = false;
+                this.process(); // Process next item
+            }
+        }
+
+        const requestQueue = new RequestQueue();
+
+        // Store original values when page loads
+        const originalValues = {};
+        document.querySelectorAll('[data-endpoint]').forEach(field => {
+            originalValues[field.id] = field.value;
+        });
+
+        // Handle form submission
+        document.getElementById('editStudentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const studentId = document.getElementById('studentId').value;
+            const saveBtn = document.getElementById('saveBtn');
+            
+            // Get all fields that need to be updated
+            const fields = document.querySelectorAll('[data-endpoint]');
+            const changedFields = [];
+
+            // Check which fields have changed
+            fields.forEach(field => {
+                if (field.value !== originalValues[field.id]) {
+                    changedFields.push(field);
+                }
+            });
+
+            // If no fields changed, show info message
+            if (changedFields.length === 0) {
+                toastr.info('No changes detected');
+                return;
+            }
+
+            // Disable save button during updates
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+            let completedRequests = 0;
+            const totalRequests = changedFields.length;
+
+            changedFields.forEach(field => {
+                const endpoint = field.getAttribute('data-endpoint');
+                const value = field.value;
+
+                // Add each changed field update to the queue
+                requestQueue.add(async () => {
+                    try {
+                        const response = await fetch(`/Admin/${endpoint}?id=${studentId}&value=${encodeURIComponent(value)}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        const result = await response.json();
+                        
+                        completedRequests++;
+
+                        if (result.success) {
+                            toastr.success(result.message);
+                            
+                            // Update original value after successful update
+                            originalValues[field.id] = value;
+                            
+                            // Update age field if date of birth was changed
+                            if (endpoint === 'UpdateDateOfBirth' && result.age !== undefined) {
+                                document.getElementById('age').value = result.age;
+                            }
+                        } else {
+                            toastr.error(result.message || 'Update failed');
+                        }
+
+                        // Re-enable button when all requests complete
+                        if (completedRequests === totalRequests) {
+                            saveBtn.disabled = false;
+                            saveBtn.innerHTML = 'Save Changes';
+                        }
+                    } catch (error) {
+                        completedRequests++;
+                        toastr.error('Network error occurred');
+                        console.error('Error:', error);
+
+                        if (completedRequests === totalRequests) {
+                            saveBtn.disabled = false;
+                            saveBtn.innerHTML = 'Save Changes';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 }

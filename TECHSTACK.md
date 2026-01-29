@@ -28,6 +28,11 @@
 - **ORM**: Entity Framework Core 10.0
 - **Provider**: Npgsql.EntityFrameworkCore.PostgreSQL 10.0
 
+### Caching
+- **Distributed cache**: Redis (or Redis-compatible, e.g. Memurai on Windows)
+- **Package**: Microsoft.Extensions.Caching.StackExchangeRedis 10.0
+- **Interface**: `IDistributedCache`; used for admin students list caching and invalidation on new registration
+
 ### Identity & Authentication
 - **Framework**: ASP.NET Core Identity
 - **Package**: Microsoft.AspNetCore.Identity.EntityFrameworkCore 10.0
@@ -239,11 +244,21 @@ public interface IEmailSenderService
 
 **Usage**:
 - Form validation
-- AJAX requests (potential)
 - DOM manipulation
 - Bootstrap dependencies
 
-### 4. Client-Side Validation
+### 4. Toastr & Fetch (AJAX)
+
+**Toastr**: CDN (toastr.js)
+
+**Purpose**: Toast notifications for profile updates
+
+**Usage**:
+- Admin Edit and Student Profile "Save Changes" use **fetch** for AJAX POSTs to per-field update APIs
+- Queued requests to avoid concurrent updates on the same record
+- Toastr success/error toasts only for fields that were updated
+
+### 5. Client-Side Validation
 
 **Technology**: jQuery Validation + Unobtrusive Validation
 
@@ -349,6 +364,7 @@ dotnet ef migrations remove
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
 </ItemGroup>
 ```
@@ -359,6 +375,7 @@ dotnet ef migrations remove
 |---------|---------|---------|
 | Microsoft.AspNetCore.Identity.EntityFrameworkCore | 10.0.2 | Identity system with EF Core |
 | Microsoft.EntityFrameworkCore.Design | 10.0.2 | Design-time EF Core tools |
+| Microsoft.Extensions.Caching.StackExchangeRedis | 10.0.2 | Redis distributed cache (`IDistributedCache`) |
 | Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.0 | PostgreSQL provider for EF Core |
 
 ---
@@ -530,6 +547,7 @@ public async Task<IActionResult> Register(...)
 - Visual Studio 2024 / VS Code / Rider
 - .NET 10.0 SDK
 - PostgreSQL 15+
+- Redis or Redis-compatible server (e.g. Memurai on Windows) for caching
 - Git
 
 **Setup**:
@@ -577,7 +595,7 @@ dotnet ef migrations remove
 ```
 
 **Production**: `appsettings.json`
-- Connection strings
+- Connection strings (`DefaultConnection`, `Redis`)
 - SMTP settings
 - Admin credentials
 
@@ -614,9 +632,17 @@ dotnet ef migrations remove
 - Use User Secrets in development
 
 **Example**:
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Host=localhost;Port=5432;Database=student_management_system;Username=postgres;Password=...",
+  "Redis": "localhost:6379"
+}
+```
+
 ```bash
-# Set environment variable
+# Override via environment variable
 export ConnectionStrings__DefaultConnection="Host=prod-server;..."
+export ConnectionStrings__Redis="redis-server:6379"
 ```
 
 ---
@@ -630,9 +656,10 @@ export ConnectionStrings__DefaultConnection="Host=prod-server;..."
 - Lazy loading disabled
 
 ### 2. Caching
+- **Redis distributed cache** for admin students list (per query/filter/page)
+- Cache invalidation when a new student registers (version bump)
+- Sliding (5 min) and absolute (30 min) expiry; configurable via `ConnectionStrings:Redis`
 - Static file caching
-- Response caching potential
-- Distributed cache ready
 
 ### 3. Query Optimization
 ```csharp

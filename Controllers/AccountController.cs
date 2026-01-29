@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StudentManagementSystem.Data;
 using StudentManagementSystem.Models;
 using StudentManagementSystem.Services;
 using StudentManagementSystem.ViewModels;
@@ -11,24 +9,13 @@ namespace StudentManagementSystem.Controllers;
 
 public class AccountController : Controller
 {
-    private readonly ApplicationDbContext _dbContext;
-    private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
-    private readonly IEmailSenderService _emailSender;
+    private readonly IStudentRegistrationService _registrationService;
 
-    public AccountController(
-        ApplicationDbContext dbContext,
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
-        RoleManager<IdentityRole> roleManager,
-        IEmailSenderService emailSender)
+    public AccountController(SignInManager<ApplicationUser> signInManager, IStudentRegistrationService registrationService)
     {
-        _dbContext = dbContext;
-        _userManager = userManager;
         _signInManager = signInManager;
-        _roleManager = roleManager;
-        _emailSender = emailSender;
+        _registrationService = registrationService;
     }
 
     [HttpGet]
@@ -56,10 +43,7 @@ public class AccountController : Controller
         if (result.Succeeded)
         {
             if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
                 return Redirect(returnUrl);
-            }
-
             return RedirectToAction("Index", "Home");
         }
 
@@ -88,75 +72,22 @@ public class AccountController : Controller
     public async Task<IActionResult> Register(StudentRegistrationViewModel model)
     {
         if (!ModelState.IsValid)
-        {
             return View(model);
-        }
 
-        var existingUser = await _userManager.FindByEmailAsync(model.Email);
-        if (existingUser != null)
+        var result = await _registrationService.RegisterAsync(model);
+
+        if (!result.Success)
         {
-            ModelState.AddModelError(nameof(model.Email), "Email is already registered.");
-            return View(model);
-        }
-
-        if (!await _roleManager.RoleExistsAsync(Roles.Student))
-        {
-            await _roleManager.CreateAsync(new IdentityRole(Roles.Student));
-        }
-
-        var studentId = await StudentIdGenerator.GenerateAsync(_dbContext);
-        var password = PasswordGenerator.Generate();
-
-        // Calculate age from date of birth
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        var age = today.Year - model.DateOfBirth.Year;
-        if (model.DateOfBirth > today.AddYears(-age)) age--;
-
-        var user = new ApplicationUser
-        {
-            UserName = model.Email,
-            Email = model.Email,
-            FullName = model.FullName,
-            DateOfBirth = model.DateOfBirth,
-            Age = age,
-            HeightCm = model.HeightCm,
-            Gender = model.Gender,
-            MobileNumber = model.MobileNumber,
-            PhoneNumber = model.MobileNumber,
-            StudentId = studentId
-        };
-
-        var result = await _userManager.CreateAsync(user, password);
-        if (!result.Succeeded)
-        {
+            // Bind "Email is already registered" to Email field so validation appears next to the input
+            var isEmailError = result.Errors.Count == 1 &&
+                result.Errors[0].Contains("Email", StringComparison.OrdinalIgnoreCase) &&
+                result.Errors[0].Contains("already", StringComparison.OrdinalIgnoreCase);
             foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
+                ModelState.AddModelError(isEmailError ? nameof(model.Email) : string.Empty, error);
             return View(model);
         }
 
-        await _userManager.AddToRoleAsync(user, Roles.Student);
-
-        var emailBody = $"""
-            <p>Hello {user.FullName},</p>
-            <p>Your student account has been created successfully.</p>
-            <p><strong>Student ID:</strong> {studentId}</p>
-            <p><strong>Login Email:</strong> {user.Email}</p>
-            <p><strong>Temporary Password:</strong> {password}</p>
-            <p>Please log in and update your profile as needed.</p>
-            """;
-
-        try
-        {
-            await _emailSender.SendEmailAsync(user.Email!, "Your Student Portal Credentials", emailBody);
-            TempData["SuccessMessage"] = "Registration successful. Credentials have been emailed.";
-        }
-        catch (Exception)
-        {
-            TempData["SuccessMessage"] = $"Registration successful! Please save your credentials:\n\nStudent ID: {studentId}\nEmail: {user.Email}\nPassword: {password}\n\n(Email delivery failed - please save these credentials now!)";
-        }
-
+        TempData["SuccessMessage"] = result.TempDataMessage;
         return RedirectToAction("Login", "Account");
     }
 

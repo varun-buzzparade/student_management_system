@@ -1,4 +1,59 @@
-# Changelog - Date of Birth & SMTP Updates
+# Changelog - Student Management System
+
+## Latest Changes (Redis, AJAX, Pagination)
+
+### 1. Redis-Backed Caching
+
+**What changed:**
+- Admin students list is cached using **Redis** (or Redis-compatible server such as **Memurai** on Windows).
+- `IDistributedCache` backed by `Microsoft.Extensions.Caching.StackExchangeRedis`.
+- Cache key includes query params (page, page size, filters); version bumped when a new student registers to invalidate all list caches.
+
+**Configuration:**
+- `appsettings.json` and `appsettings.example.json`: `ConnectionStrings:Redis` (e.g. `localhost:6379`).
+- Redis/Memurai must be running separately; the app does not start it.
+
+**Files touched:**
+- `Program.cs` – `AddStackExchangeRedisCache`, `InstanceName = "StudentMgmt_"`.
+- `Controllers/AdminController.cs` – cache get/set, `ClearStudentListCacheAsync`.
+- `Controllers/AccountController.cs` – calls clear cache after registration.
+
+---
+
+### 2. AJAX Profile Updates (No Page Reload)
+
+**What changed:**
+- **Admin Edit** (`/Admin/Edit/{id}`) and **Student Profile** (`/Student/Profile`): "Save Changes" submits via AJAX.
+- Each **changed field** triggers a **separate POST** to a per-field update API; requests are **queued** to avoid conflicting updates on the same record.
+- **Toastr** toasts show **success only for updated fields**; errors shown on failure.
+
+**Files touched:**
+- `Views/Admin/Edit.cshtml`, `Views/Student/Profile.cshtml` – fetch-based AJAX, Toastr, queue logic.
+- `AdminController` / `StudentController` – POST actions (e.g. `UpdateFullName`, `UpdateEmail`, `UpdateDateOfBirth`, etc.).
+
+---
+
+### 3. Pagination Bar
+
+**What changed:**
+- Pagination bar truncated (e.g. `1 2 3 … 500`), ~15 page slots, centered below the table.
+- Consistent width from initial load (no layout shift when changing pages).
+
+**Files touched:**
+- `Views/Admin/Index.cshtml` – pagination markup and logic.
+
+---
+
+### 4. Date of Birth (Registration & Profile)
+
+**What changed:**
+- Registration and profile use **Date of Birth**; age is **auto-calculated** and read-only.
+- Date picker **year range** starts at **1900** (max today).
+
+**Files touched:**
+- Registration, Admin Edit, Student Profile views and ViewModels; `ApplicationUser.DateOfBirth`.
+
+---
 
 ## Changes Made on 2026-01-27
 

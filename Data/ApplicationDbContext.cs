@@ -4,6 +4,10 @@ using StudentManagementSystem.Models;
 
 namespace StudentManagementSystem.Data;
 
+/// <summary>
+/// EF Core context for the app. Identity tables (users, roles) + custom ApplicationUser configuration.
+/// Uses PostgreSQL via UseNpgsql; see Program.cs.
+/// </summary>
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)

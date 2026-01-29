@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StudentManagementSystem.Models;
+using StudentManagementSystem.Services;
 using StudentManagementSystem.ViewModels;
 
 namespace StudentManagementSystem.Controllers;
@@ -10,10 +11,17 @@ namespace StudentManagementSystem.Controllers;
 public class StudentController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IStudentViewModelMapper _mapper;
+    private readonly IStudentUpdateService _updateService;
 
-    public StudentController(UserManager<ApplicationUser> userManager)
+    public StudentController(
+        UserManager<ApplicationUser> userManager,
+        IStudentViewModelMapper mapper,
+        IStudentUpdateService updateService)
     {
         _userManager = userManager;
+        _mapper = mapper;
+        _updateService = updateService;
     }
 
     [HttpGet]
@@ -21,95 +29,99 @@ public class StudentController : Controller
     {
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
-        {
             return RedirectToAction("Login", "Account");
-        }
 
-        var model = new StudentProfileViewModel
-        {
-            StudentId = user.StudentId ?? string.Empty,
-            FullName = user.FullName,
-            DateOfBirth = user.DateOfBirth ?? DateOnly.FromDateTime(DateTime.Today.AddYears(-20)),
-            Age = user.Age,
-            HeightCm = user.HeightCm,
-            Gender = user.Gender,
-            MobileNumber = user.MobileNumber,
-            Email = user.Email ?? string.Empty
-        };
-
-        return View(model);
+        return View(_mapper.ToProfileViewModel(user));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Profile(StudentProfileViewModel model)
+    public async Task<IActionResult> Profile(StudentProfileViewModel model, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
-        {
             return View(model);
-        }
 
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
-        {
             return RedirectToAction("Login", "Account");
-        }
 
-        if (!string.Equals(user.Email, model.Email, StringComparison.OrdinalIgnoreCase))
+        var (success, errors) = await _updateService.UpdateFromProfileViewModelAsync(user.Id, model, cancellationToken);
+        if (!success)
         {
-            var existing = await _userManager.FindByEmailAsync(model.Email);
-            if (existing != null && existing.Id != user.Id)
-            {
-                ModelState.AddModelError(nameof(model.Email), "Email is already in use.");
-                return View(model);
-            }
-
-            var emailResult = await _userManager.SetEmailAsync(user, model.Email);
-            if (!emailResult.Succeeded)
-            {
-                foreach (var error in emailResult.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-                return View(model);
-            }
-
-            var userNameResult = await _userManager.SetUserNameAsync(user, model.Email);
-            if (!userNameResult.Succeeded)
-            {
-                foreach (var error in userNameResult.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-                return View(model);
-            }
-        }
-
-        // Calculate age from date of birth
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        var age = today.Year - model.DateOfBirth.Year;
-        if (model.DateOfBirth > today.AddYears(-age)) age--;
-
-        user.FullName = model.FullName;
-        user.DateOfBirth = model.DateOfBirth;
-        user.Age = age;
-        user.HeightCm = model.HeightCm;
-        user.Gender = model.Gender;
-        user.MobileNumber = model.MobileNumber;
-        user.PhoneNumber = model.MobileNumber;
-
-        var updateResult = await _userManager.UpdateAsync(user);
-        if (!updateResult.Succeeded)
-        {
-            foreach (var error in updateResult.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
+            foreach (var e in errors)
+                ModelState.AddModelError(string.Empty, e);
             return View(model);
         }
 
         ViewData["SuccessMessage"] = "Profile updated successfully.";
         model.StudentId = user.StudentId ?? string.Empty;
         return View(model);
+    }
+
+    // AJAX endpoints used by Student/Profile view for per-field updates
+    [HttpPost]
+    public async Task<IActionResult> UpdateFullName(string value, CancellationToken cancellationToken = default)
+    {
+        var userId = _userManager.GetUserId(User);
+        if (string.IsNullOrEmpty(userId))
+            return Json(new { success = false, message = "User not found" });
+
+        var r = await _updateService.UpdateFullNameAsync(userId, value, cancellationToken);
+        return Json(new { success = r.Success, message = r.Message });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateDateOfBirth(string value, CancellationToken cancellationToken = default)
+    {
+        var userId = _userManager.GetUserId(User);
+        if (string.IsNullOrEmpty(userId))
+            return Json(new { success = false, message = "User not found" });
+
+        var r = await _updateService.UpdateDateOfBirthAsync(userId, value, cancellationToken);
+        return Json(new { success = r.Success, message = r.Message, age = r.Age });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateHeightCm(string value, CancellationToken cancellationToken = default)
+    {
+        var userId = _userManager.GetUserId(User);
+        if (string.IsNullOrEmpty(userId))
+            return Json(new { success = false, message = "User not found" });
+
+        var r = await _updateService.UpdateHeightCmAsync(userId, value, cancellationToken);
+        return Json(new { success = r.Success, message = r.Message });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateGender(string value, CancellationToken cancellationToken = default)
+    {
+        var userId = _userManager.GetUserId(User);
+        if (string.IsNullOrEmpty(userId))
+            return Json(new { success = false, message = "User not found" });
+
+        var r = await _updateService.UpdateGenderAsync(userId, value, cancellationToken);
+        return Json(new { success = r.Success, message = r.Message });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateMobileNumber(string value, CancellationToken cancellationToken = default)
+    {
+        var userId = _userManager.GetUserId(User);
+        if (string.IsNullOrEmpty(userId))
+            return Json(new { success = false, message = "User not found" });
+
+        var r = await _updateService.UpdateMobileNumberAsync(userId, value, cancellationToken);
+        return Json(new { success = r.Success, message = r.Message });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateEmail(string value, CancellationToken cancellationToken = default)
+    {
+        var userId = _userManager.GetUserId(User);
+        if (string.IsNullOrEmpty(userId))
+            return Json(new { success = false, message = "User not found" });
+
+        var r = await _updateService.UpdateEmailAsync(userId, value, cancellationToken);
+        return Json(new { success = r.Success, message = r.Message });
     }
 }

@@ -4,6 +4,10 @@ using StudentManagementSystem.Models;
 
 namespace StudentManagementSystem.Data;
 
+/// <summary>
+/// Ensures Admin and Student roles exist, and optionally creates a default admin user
+/// when AdminCredentials:Email and AdminCredentials:Password are set in configuration.
+/// </summary>
 public static class IdentitySeeder
 {
     public static async Task SeedAsync(IServiceProvider services)

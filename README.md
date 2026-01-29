@@ -15,6 +15,7 @@ The Student Management System provides a secure platform for educational institu
 
 - .NET 10.0 SDK
 - PostgreSQL 15 or higher
+- Redis or a Redis-compatible server (e.g. [Memurai](https://www.memurai.com/) on Windows) for caching
 - A modern web browser
 
 ### Installation & Setup
@@ -23,24 +24,29 @@ The Student Management System provides a secure platform for educational institu
 
 2. **Configure the database connection**
    
-   Edit `appsettings.json` and update the connection string:
+   Edit `appsettings.json` and update the connection strings:
    ```json
    "ConnectionStrings": {
-     "DefaultConnection": "Host=localhost;Port=5432;Database=student_management_system;Username=postgres;Password=your_password"
+     "DefaultConnection": "Host=localhost;Port=5432;Database=student_management_system;Username=postgres;Password=your_password",
+     "Redis": "localhost:6379"
    }
    ```
 
-3. **Apply database migrations**
+3. **Ensure Redis is running**
+   
+   The app uses Redis for caching the admin students list. Use Redis (Linux/macOS/Docker) or Memurai (Windows) listening on `localhost:6379`. The app does not start Redis; it must be running separately.
+
+4. **Apply database migrations**
    ```bash
    dotnet ef database update
    ```
 
-4. **Run the application**
+5. **Run the application**
    ```bash
    dotnet run
    ```
 
-5. **Access the application**
+6. **Access the application**
    
    Open your browser and navigate to: `http://localhost:5146`
 
@@ -80,9 +86,10 @@ student_management_system/
 ## Key Features
 
 - ✅ Role-based authentication & authorization
-- ✅ Student registration with auto-generated IDs
+- ✅ Student registration with auto-generated IDs (date of birth → auto-calculated age)
 - ✅ Admin dashboard with advanced search and filtering
-- ✅ Student profile management
+- ✅ Redis-backed caching for the students list (invalidated when a new student registers)
+- ✅ Student profile management (admin & student) via AJAX updates—no page reload, Toastr notifications
 - ✅ Secure password generation
 - ✅ Email notification system (configurable)
 - ✅ Responsive Bootstrap UI
@@ -106,6 +113,20 @@ To enable email notifications, configure SMTP settings in `appsettings.json`:
 ```
 
 **Note**: If email is not configured, registration credentials will be displayed on-screen instead.
+
+### Redis (Caching)
+
+The admin students list is cached using Redis. Configure the Redis connection in `appsettings.json`:
+
+```json
+"ConnectionStrings": {
+  "Redis": "localhost:6379"
+}
+```
+
+- **Windows**: Use [Memurai](https://www.memurai.com/) (Redis-compatible) or Redis via WSL/Docker.
+- **Linux/macOS**: Use Redis; ensure it is running before starting the app.
+- Cache is cleared automatically when a new student registers.
 
 ## Security Features
 
