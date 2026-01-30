@@ -1,3 +1,5 @@
+using StudentManagementSystem.Models;
+
 namespace StudentManagementSystem.Services.Student.Upload;
 
 /// <summary>
@@ -15,7 +17,30 @@ public interface IStudentFileUploadService
     /// Validates and saves a profile video. Returns relative path (e.g. uploads/videos/{studentId}/file.mp4) or an error.
     /// </summary>
     Task<FileUploadResult> SaveVideoAsync(IFormFile file, string studentId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Saves a draft file (pre-submit). Path stored in draft and reflected in DB. Uses system temp to avoid OneDrive locks.
+    /// </summary>
+    Task<DraftUploadResult> SaveDraftFileAsync(string type, IFormFile file, Guid draftId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Moves draft files to student folder and returns final paths. Deletes draft files after move.
+    /// </summary>
+    Task<(string? ImagePath, string? VideoPath)> MoveDraftFilesToStudentAsync(RegistrationDraft draft, string studentId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes draft files from disk (used when draft expires or is abandoned).
+    /// </summary>
+    void DeleteDraftFiles(Guid draftId);
+
+    /// <summary>
+    /// Deletes expired draft folders (session timeout cleanup).
+    /// </summary>
+    void CleanupExpiredDraftFolders();
 }
+
+/// <summary>Result of a draft file upload (pre-submit). Path is stored in draft.</summary>
+public sealed record DraftUploadResult(bool Success, string? RelativePath, string? ErrorMessage);
 
 /// <summary>Result of a single file upload attempt.</summary>
 public sealed record FileUploadResult(bool Success, string? RelativePath, string? ErrorMessage);

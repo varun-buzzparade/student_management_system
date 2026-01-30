@@ -43,6 +43,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 // Email (SMTP)
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.Configure<TempUploadOptions>(builder.Configuration.GetSection(TempUploadOptions.SectionName));
 builder.Services.AddScoped<IEmailSenderService, SmtpEmailSender>();
 
 // Distributed cache (Redis / Memurai) for admin student list
@@ -62,6 +63,7 @@ builder.Services.AddScoped<IStudentViewModelMapper, StudentViewModelMapper>();
 builder.Services.AddScoped<IStudentUpdateService, StudentUpdateService>();
 builder.Services.AddScoped<IStudentRegistrationService, StudentRegistrationService>();
 builder.Services.AddScoped<IStudentFileUploadService, StudentFileUploadService>();
+builder.Services.AddScoped<IRegistrationDraftService, RegistrationDraftService>();
 
 builder.Services.AddControllersWithViews();
 
@@ -91,6 +93,10 @@ app.MapControllerRoute(
 using (var scope = app.Services.CreateScope())
 {
     await IdentitySeeder.SeedAsync(scope.ServiceProvider);
+    scope.ServiceProvider.GetRequiredService<IStudentFileUploadService>().CleanupExpiredDraftFolders();
+    var draftSvc = scope.ServiceProvider.GetRequiredService<IRegistrationDraftService>();
+    var expiryMinutes = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<TempUploadOptions>>().Value.ExpiryMinutes;
+    await draftSvc.DeleteExpiredDraftsAsync(expiryMinutes, CancellationToken.None);
 }
 
 app.Run();

@@ -15,15 +15,22 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
+    public DbSet<RegistrationDraft> RegistrationDrafts => Set<RegistrationDraft>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<RegistrationDraft>(entity =>
+        {
+            entity.HasIndex(e => e.CreatedAt);
+            entity.HasIndex(e => e.LastUpdatedAt);
+        });
 
         builder.Entity<ApplicationUser>(entity =>
         {
             entity.Property(u => u.HeightCm).HasPrecision(5, 2);
             entity.Property(u => u.Gender).HasConversion<string>().HasMaxLength(20);
-
             entity.HasIndex(u => u.StudentId).IsUnique();
             entity.HasIndex(u => u.FullName);
             entity.HasIndex(u => u.Age);

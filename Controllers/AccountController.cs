@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Options;
+using StudentManagementSystem.Configuration;
 using StudentManagementSystem.Models;
 using StudentManagementSystem.Services.Student.Registration;
+using StudentManagementSystem.Services.Student.Upload;
 using StudentManagementSystem.ViewModels;
 
 namespace StudentManagementSystem.Controllers;
@@ -12,11 +16,19 @@ public class AccountController : Controller
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IStudentRegistrationService _registrationService;
+    private readonly IStudentFileUploadService _uploadService;
+    private readonly IRegistrationDraftService _draftService;
+    private readonly IOptions<TempUploadOptions> _tempUploadOptions;
+    private readonly ILogger<AccountController> _logger;
 
-    public AccountController(SignInManager<ApplicationUser> signInManager, IStudentRegistrationService registrationService)
+    public AccountController(SignInManager<ApplicationUser> signInManager, IStudentRegistrationService registrationService, IStudentFileUploadService uploadService, IRegistrationDraftService draftService, IOptions<TempUploadOptions> tempUploadOptions, ILogger<AccountController> logger)
     {
         _signInManager = signInManager;
         _registrationService = registrationService;
+        _uploadService = uploadService;
+        _draftService = draftService;
+        _tempUploadOptions = tempUploadOptions;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -62,9 +74,52 @@ public class AccountController : Controller
 
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult Register()
+    public async Task<IActionResult> Register(CancellationToken cancellationToken)
     {
-        return View(new StudentRegistrationViewModel());
+        _uploadService.CleanupExpiredDraftFolders();
+        await _draftService.DeleteExpiredDraftsAsync(_tempUploadOptions.Value.ExpiryMinutes, cancellationToken);
+        var draftId = await _draftService.CreateDraftAsync(cancellationToken);
+        return View(new StudentRegistrationViewModel { DraftId = draftId.ToString() });
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateDraft(CancellationToken cancellationToken)
+    {
+        _uploadService.CleanupExpiredDraftFolders();
+        await _draftService.DeleteExpiredDraftsAsync(_tempUploadOptions.Value.ExpiryMinutes, cancellationToken);
+        var draftId = await _draftService.CreateDraftAsync(cancellationToken);
+        return Json(new { draftId });
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateDraft(Guid draftId, string field, string? value, CancellationToken cancellationToken)
+    {
+        var ok = await _draftService.UpdateFieldAsync(draftId, field, value, cancellationToken);
+        return Json(new { success = ok });
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    [RequestFormLimits(MultipartBodyLengthLimit = 110 * 1024 * 1024)]
+    [RequestSizeLimit(110 * 1024 * 1024)]
+    public async Task<IActionResult> UploadTempFile(string type, IFormFile file, Guid draftId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(type) || file == null || file.Length == 0 || draftId == Guid.Empty)
+            return Json(new { success = false, error = "Invalid request." });
+
+        var result = await _uploadService.SaveDraftFileAsync(type, file, draftId, cancellationToken);
+        if (!result.Success)
+            return Json(new { success = false, error = result.ErrorMessage });
+
+        var field = string.Equals(type, "image", StringComparison.OrdinalIgnoreCase) ? "ProfileImagePath" : "ProfileVideoPath";
+        await _draftService.UpdateFieldAsync(draftId, field, result.RelativePath, cancellationToken);
+
+        return Json(new { success = true, path = result.RelativePath });
     }
 
     [HttpPost]
@@ -77,16 +132,28 @@ public class AccountController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        var result = await _registrationService.RegisterAsync(model);
-
-        if (!result.Success)
+        try
         {
-            AddRegistrationErrorsToModelState(ModelState, result.Errors, model);
+            var result = await _registrationService.RegisterAsync(model);
+
+            if (!result.Success)
+            {
+                AddRegistrationErrorsToModelState(ModelState, result.Errors, model);
+                return View(model);
+            }
+
+            TempData["SuccessMessage"] = result.TempDataMessage;
+            return RedirectToAction("Login", "Account");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Registration failed for {Email}", model.Email);
+            var msg = HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment()
+                ? $"Registration failed: {ex.Message}"
+                : "Registration failed. Please try again.";
+            ModelState.AddModelError(string.Empty, msg);
             return View(model);
         }
-
-        TempData["SuccessMessage"] = result.TempDataMessage;
-        return RedirectToAction("Login", "Account");
     }
 
     [HttpGet]

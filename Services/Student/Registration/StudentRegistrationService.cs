@@ -20,6 +20,7 @@ public sealed class StudentRegistrationService : IStudentRegistrationService
     private readonly IAgeCalculator _ageCalculator;
     private readonly IStudentListCacheService _cache;
     private readonly IStudentFileUploadService _uploadService;
+    private readonly IRegistrationDraftService _draftService;
 
     public StudentRegistrationService(
         UserManager<ApplicationUser> userManager,
@@ -29,7 +30,8 @@ public sealed class StudentRegistrationService : IStudentRegistrationService
         IPasswordGenerator passwordGenerator,
         IAgeCalculator ageCalculator,
         IStudentListCacheService cache,
-        IStudentFileUploadService uploadService)
+        IStudentFileUploadService uploadService,
+        IRegistrationDraftService draftService)
     {
         _userManager = userManager;
         _roleManager = roleManager;
@@ -39,6 +41,7 @@ public sealed class StudentRegistrationService : IStudentRegistrationService
         _ageCalculator = ageCalculator;
         _cache = cache;
         _uploadService = uploadService;
+        _draftService = draftService;
     }
 
     public async Task<RegistrationResult> RegisterAsync(StudentRegistrationViewModel model, CancellationToken cancellationToken = default)
@@ -53,7 +56,22 @@ public sealed class StudentRegistrationService : IStudentRegistrationService
         var password = _passwordGenerator.Generate();
         var user = BuildNewStudentFromModel(model, studentId);
 
-        if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+        if (Guid.TryParse(model.DraftId, out var did))
+        {
+            var draft = await _draftService.GetDraftAsync(did, cancellationToken);
+            if (draft != null)
+            {
+                if (!string.IsNullOrEmpty(draft.ProfileImagePath) || !string.IsNullOrEmpty(draft.ProfileVideoPath))
+                {
+                    var (imgPath, vidPath) = await _uploadService.MoveDraftFilesToStudentAsync(draft, studentId, cancellationToken);
+                    if (imgPath != null) user.ProfileImagePath = imgPath;
+                    if (vidPath != null) user.ProfileVideoPath = vidPath;
+                }
+                await _draftService.DeleteDraftAsync(did, cancellationToken);
+            }
+        }
+
+        if (user.ProfileImagePath == null && model.ProfileImage != null && model.ProfileImage.Length > 0)
         {
             var img = await _uploadService.SaveImageAsync(model.ProfileImage, studentId, cancellationToken);
             if (!img.Success)
@@ -61,7 +79,7 @@ public sealed class StudentRegistrationService : IStudentRegistrationService
             user.ProfileImagePath = img.RelativePath;
         }
 
-        if (model.ProfileVideo != null && model.ProfileVideo.Length > 0)
+        if (user.ProfileVideoPath == null && model.ProfileVideo != null && model.ProfileVideo.Length > 0)
         {
             var vid = await _uploadService.SaveVideoAsync(model.ProfileVideo, studentId, cancellationToken);
             if (!vid.Success)
@@ -74,8 +92,9 @@ public sealed class StudentRegistrationService : IStudentRegistrationService
             return new RegistrationResult { Success = false, Errors = create.Errors.Select(e => e.Description).ToList() };
 
         await _userManager.AddToRoleAsync(user, Roles.Student);
-        await _cache.InvalidateAsync(cancellationToken); // Admin list cache must reflect new student
+        try { await _cache.InvalidateAsync(cancellationToken); } catch { /* Cache invalidation failed; list will refresh on next load */ }
 
+        // Draft cleanup runs via expiry; skip delete here to avoid DbContext conflicts
         var emailSent = await TrySendWelcomeEmailAsync(user, studentId, password, cancellationToken);
 
         return new RegistrationResult
