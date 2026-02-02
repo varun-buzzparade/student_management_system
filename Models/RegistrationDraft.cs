@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using StudentManagementSystem.Services.Student.Upload;
 
 namespace StudentManagementSystem.Models;
 
 /// <summary>
 /// Stores partial registration data as user fills the form. Deleted on submit or after expiry.
 /// </summary>
-public class RegistrationDraft
+public class RegistrationDraft : IDraftWithFilePaths
 {
     public Guid Id { get; set; }
 

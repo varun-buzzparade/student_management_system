@@ -44,6 +44,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Email (SMTP)
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 builder.Services.Configure<TempUploadOptions>(builder.Configuration.GetSection(TempUploadOptions.SectionName));
+builder.Services.Configure<CompressionOptions>(builder.Configuration.GetSection(CompressionOptions.SectionName));
+builder.Services.AddSingleton<IFfmpegLocator, FfmpegLocator>();
+builder.Services.AddSingleton<IImageCompressor, ImageCompressor>();
+builder.Services.AddSingleton<IVideoCompressor, VideoCompressor>();
+builder.Services.AddSingleton<BackgroundCompressionService>();
+builder.Services.AddSingleton<IBackgroundCompressionService>(sp => sp.GetRequiredService<BackgroundCompressionService>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<BackgroundCompressionService>());
 builder.Services.AddScoped<IEmailSenderService, SmtpEmailSender>();
 
 // Distributed cache (Redis / Memurai) for admin student list

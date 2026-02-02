@@ -1,6 +1,14 @@
-using StudentManagementSystem.Models;
-
 namespace StudentManagementSystem.Services.Student.Upload;
+
+/// <summary>
+/// Minimal contract for draft file move. Decouples upload service from RegistrationDraft entity (DIP).
+/// </summary>
+public interface IDraftWithFilePaths
+{
+    Guid Id { get; }
+    string? ProfileImagePath { get; }
+    string? ProfileVideoPath { get; }
+}
 
 /// <summary>
 /// Handles validation and storage of student profile image and video uploads.
@@ -26,7 +34,7 @@ public interface IStudentFileUploadService
     /// <summary>
     /// Moves draft files to student folder and returns final paths. Deletes draft files after move.
     /// </summary>
-    Task<(string? ImagePath, string? VideoPath)> MoveDraftFilesToStudentAsync(RegistrationDraft draft, string studentId, CancellationToken cancellationToken = default);
+    Task<(string? ImagePath, string? VideoPath)> MoveDraftFilesToStudentAsync(IDraftWithFilePaths draft, string studentId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes draft files from disk (used when draft expires or is abandoned).

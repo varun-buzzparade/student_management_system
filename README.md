@@ -16,6 +16,7 @@ The Student Management System provides a secure platform for educational institu
 - .NET 10.0 SDK
 - PostgreSQL 15 or higher
 - Redis or a Redis-compatible server (e.g. [Memurai](https://www.memurai.com/) on Windows) for caching
+- **FFmpeg** (optional): For video compression. If not in PATH, video files are stored as-is. [Download FFmpeg](https://ffmpeg.org/download.html)
 - A modern web browser
 
 ### Installation & Setup

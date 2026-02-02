@@ -19,15 +19,17 @@ public class AccountController : Controller
     private readonly IStudentFileUploadService _uploadService;
     private readonly IRegistrationDraftService _draftService;
     private readonly IOptions<TempUploadOptions> _tempUploadOptions;
+    private readonly IWebHostEnvironment _env;
     private readonly ILogger<AccountController> _logger;
 
-    public AccountController(SignInManager<ApplicationUser> signInManager, IStudentRegistrationService registrationService, IStudentFileUploadService uploadService, IRegistrationDraftService draftService, IOptions<TempUploadOptions> tempUploadOptions, ILogger<AccountController> logger)
+    public AccountController(SignInManager<ApplicationUser> signInManager, IStudentRegistrationService registrationService, IStudentFileUploadService uploadService, IRegistrationDraftService draftService, IOptions<TempUploadOptions> tempUploadOptions, IWebHostEnvironment env, ILogger<AccountController> logger)
     {
         _signInManager = signInManager;
         _registrationService = registrationService;
         _uploadService = uploadService;
         _draftService = draftService;
         _tempUploadOptions = tempUploadOptions;
+        _env = env;
         _logger = logger;
     }
 
@@ -148,7 +150,7 @@ public class AccountController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Registration failed for {Email}", model.Email);
-            var msg = HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment()
+            var msg = _env.IsDevelopment()
                 ? $"Registration failed: {ex.Message}"
                 : "Registration failed. Please try again.";
             ModelState.AddModelError(string.Empty, msg);
